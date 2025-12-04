@@ -4,47 +4,18 @@
     <p class="page-subtitle">This page will display sales metrics loaded from the API.</p>
   </header>
 
-  <div class="toolbar">
+  <form id="sales-filter-form" class="toolbar">
     <label>
       From
-      <input type="date" aria-label="From date" />
+      <input id="sales-from" type="date" aria-label="From date" required />
     </label>
     <label>
       To
-      <input type="date" aria-label="To date" />
+      <input id="sales-to" type="date" aria-label="To date" required />
     </label>
-    <button type="button">Apply</button>
-  </div>
+    <button type="submit">Apply</button>
+  </form>
 
-  <p class="page-subtitle">Sales data will load here from the API.</p>
-  <div id="sales-summary"></div>
-
-  <div class="table-wrapper">
-    <table id="sales-table">
-      <thead>
-        <tr>
-          <th>Store Name</th>
-          <th>Store Type</th>
-          <th>User</th>
-          <th>User Name</th>
-          <th>Code SKU</th>
-          <th>Amount</th>
-          <th>Qty</th>
-          <th>Transdate</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Sample Mart</td>
-          <td>Retail</td>
-          <td>ggitteam</td>
-          <td>Swagger User</td>
-          <td>SKU-123</td>
-          <td>$99.00</td>
-          <td>3</td>
-          <td>2025-02-01</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <div id="sales-summary" class="card-grid"></div>
+  <div id="sales-table-container" class="table-wrapper"></div>
 </section>

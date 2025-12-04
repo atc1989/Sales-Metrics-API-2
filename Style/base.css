@@ -150,6 +150,14 @@ body {
   margin-bottom: 16px;
 }
 
+.toolbar label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 input[type="text"],
 input[type="date"],
 button {
@@ -210,6 +218,10 @@ th {
 
 tbody tr:last-child td {
   border-bottom: none;
+}
+
+.table-wrapper {
+  margin-top: 16px;
 }
 
 .empty-state {

@@ -31,13 +31,13 @@ function navigateTo(route) {
   const normalizedRoute = ROUTES[route] ? route : 'home';
   const path = ROUTES[normalizedRoute];
   setActiveLink(normalizedRoute);
-  loadPage(path);
+  loadPage(normalizedRoute, path);
   if (location.hash !== `#${normalizedRoute}`) {
     history.replaceState(null, '', `#${normalizedRoute}`);
   }
 }
 
-async function loadPage(path) {
+async function loadPage(route, path) {
   const contentEl = document.getElementById('app-content');
   if (!contentEl) return;
 
@@ -50,6 +50,10 @@ async function loadPage(path) {
     }
     const html = await response.text();
     contentEl.innerHTML = html;
+
+    if (route === 'sales' && typeof window.initSalesPage === 'function') {
+      window.initSalesPage();
+    }
   } catch (error) {
     console.error(error);
     contentEl.innerHTML = '<div class="empty-state">Sorry, we could not load that page. Please try again.</div>';
