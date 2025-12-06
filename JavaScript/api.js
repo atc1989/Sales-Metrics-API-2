@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://swagger-iota-bay.vercel.app/';
+const API_BASE_URL = 'https://swagger-iota-bay.vercel.app';
 
 /**
  * Perform a GET request against the Swagger backend.
