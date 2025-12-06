@@ -2,9 +2,9 @@ const API_BASE_URL = 'http://localhost:4000';
 
 /**
  * Perform a GET request against the Swagger backend.
- * @param {string} path - Endpoint path (e.g. "/api.get.sales.php").
+ * @param {string} path - Endpoint path (e.g. "/api/sales").
  * @param {Record<string, string | number | undefined>} params - Query parameters to append.
- * @returns {Promise<any>} Parsed JSON response.
+ * @returns {Promise<any>} Parsed JSON response or {} if empty.
  */
 async function apiGet(path, params = {}) {
   const url = new URL(path, API_BASE_URL);
@@ -15,7 +15,7 @@ async function apiGet(path, params = {}) {
     }
   });
 
-  console.log('Calling API:', url.toString()); // debug
+  console.log('Calling API:', url.toString());
 
   try {
     const response = await fetch(url.toString());
@@ -23,13 +23,26 @@ async function apiGet(path, params = {}) {
       console.error('API response not OK:', response.status, response.statusText);
       throw new Error(`Request failed with status ${response.status}`);
     }
-    return await response.json();
+
+    // 👇 NEW: be defensive about the body
+    const text = await response.text();
+
+    // If the body is completely empty, just return an empty object
+    if (!text || !text.trim()) {
+      return {};
+    }
+
+    // Try to parse JSON; if it fails, log and return {}
+    try {
+      return JSON.parse(text);
+    } catch (parseErr) {
+      console.error('Failed to parse JSON response:', parseErr, 'Body was:', text);
+      return {};
+    }
   } catch (err) {
     console.error('apiGet error:', err);
     throw err;
   }
 }
 
-
-// Expose globally for other modules to consume.
 window.apiGet = apiGet;

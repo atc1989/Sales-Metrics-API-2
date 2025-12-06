@@ -1,116 +1,108 @@
-// --- CODES CONFIG ---
+// CODES CONFIG
 const CODES_API_USER = 'ggitteam';
-const CODES_API_KEY  = '0620251205';
 const CODES_ENDPOINT = '/api/codes';
 
-function getCodesDefaultDateRange() {
-  const today = new Date();
-  const weekAgo = new Date(today);
-  weekAgo.setDate(today.getDate() - 7);
-
-  return {
-    from: formatDateForInput(weekAgo),
-    to: formatDateForInput(today)
-  };
+function getCodesApiKey() {
+  return generateApiKey();
 }
 
-// --- TABLE RENDERING (generic) ---
+// SUMMARY
+function renderCodesSummary(rows, summaryEl) {
+  if (!summaryEl) return;
 
-function renderCodesTable(rows) {
-  const container = document.getElementById('codes-table-container');
-  if (!container) return;
-
-  container.innerHTML = '';
-
-  if (!rows.length) {
-    container.textContent = 'No codes data available for this filter.';
+  if (!Array.isArray(rows) || rows.length === 0) {
+    summaryEl.innerHTML = 'No codes data available.';
     return;
   }
 
-  // Generic dynamic table (similar to JSON→table helper)
-  const columns = Array.from(
-    new Set(
-      rows.flatMap(row => Object.keys(row || {}))
-    )
-  );
+  const totalCodes = rows.length;
 
-  const table = document.createElement('table');
-  const thead = document.createElement('thead');
-  const tbody = document.createElement('tbody');
-
-  // Header
-  const headerRow = document.createElement('tr');
-  columns.forEach(col => {
-    const th = document.createElement('th');
-    th.textContent = col;
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-
-  // Body
-  rows.forEach(row => {
-    const tr = document.createElement('tr');
-    columns.forEach(col => {
-      const td = document.createElement('td');
-      let value = row ? row[col] : '';
-      if (value && typeof value === 'object') {
-        value = JSON.stringify(value);
-      }
-      td.textContent = value ?? '';
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  });
-
-  table.appendChild(thead);
-  table.appendChild(tbody);
-  container.appendChild(table);
+  summaryEl.innerHTML = `
+    <div class="card-grid">
+      <div class="card">
+        <p class="card-title">Total Codes</p>
+        <p class="card-value">${totalCodes.toLocaleString()}</p>
+      </div>
+    </div>
+  `;
 }
 
-// --- DATA LOADING ---
-
-async function loadCodesData({ df, dt, search }) {
+// TABLE WRAPPER
+function renderCodesTable(rows) {
   const tableContainer = document.getElementById('codes-table-container');
+  if (!tableContainer) return;
+
+  const columns = [
+    { key: 'owner_user_name',    label: 'Owner User Name' },
+    { key: 'owner_name',         label: 'Owner Name' },
+    { key: 'code_status',        label: 'Code Status' },
+    { key: 'sponsor_id',         label: 'Sponsor ID' },
+    { key: 'sponsor_login_name', label: 'Sponsor Login Name'},
+    { key: 'sponsor_name',       label: 'Sponsor Name'},
+    { key: 'used_by_user_name',  label: 'Used By User Name'},
+    { key: 'used_by_name',       label: 'Used By Name'},
+    { key: 'code_sku',           label: 'Code SKU'},
+    { key: 'code_payment',       label: 'Code Payment'},
+    { key: 'code',               label: 'Code'},
+    { key: 'code_amount',        label: 'Code Amount'},
+    { key: 'code_pin',           label: 'Code PIN'},
+    { key: 'code_date_created',  label: 'Code Date Created'},
+  ];
+
+  renderTable(tableContainer, columns, rows);
+}
+
+// DATA LOADING
+async function loadCodesData({ df, dt, search }) {
+  const summaryEl      = document.getElementById('codes-summary');
+  const tableContainer = document.getElementById('codes-table-container');
+
   if (tableContainer) {
-    tableContainer.textContent = 'Loading codes...';
+    tableContainer.innerHTML = '<div class="empty-state">Loading codes...</div>';
   }
 
   try {
     const result = await apiGet(CODES_ENDPOINT, {
-      user: CODES_API_USER,
-      apikey: CODES_API_KEY,
+      user:   CODES_API_USER,
+      apikey: getCodesApiKey(),
       df,
       dt,
-      search
     });
 
-    // If API returns { data: [...] }, adapt here
-    const rows = Array.isArray(result.data)
+    const rows = Array.isArray(result?.data)
       ? result.data
       : Array.isArray(result)
         ? result
         : [];
+    
+    if (!rows.length) {
+      console.warn(`API call returned 0 codes for date range: ${df} to ${dt}.`);
+    }
 
+    renderCodesSummary(rows, summaryEl);
     renderCodesTable(rows);
   } catch (err) {
     console.error('Failed to load codes', err);
     if (tableContainer) {
       tableContainer.textContent = 'Unable to load codes. Please try again later.';
     }
+    if (summaryEl) {
+      summaryEl.innerHTML = '';
+    }
+    return [];
   }
 }
 
-// --- PAGE INIT ---
-
+// PAGE INIT
 function initCodesPage() {
   const searchInput = document.getElementById('codes-search');
   const fromInput   = document.getElementById('codes-from');
   const toInput     = document.getElementById('codes-to');
   const filterForm  = document.getElementById('codes-filter-form');
 
-  const { from, to } = getCodesDefaultDateRange();
+  const { from, to } = getDefaultDateRange();
   if (fromInput && !fromInput.value) fromInput.value = from;
-  if (toInput && !toInput.value) toInput.value = to;
+  if (toInput && !toInput.value)     toInput.value   = to;
 
   if (filterForm) {
     filterForm.addEventListener('submit', (e) => {
@@ -123,10 +115,17 @@ function initCodesPage() {
     });
   }
 
-  const df = formatDateForApi(fromInput?.value);
-  const dt = formatDateForApi(toInput?.value);
-  const search = searchInput?.value || '';
-  loadCodesData({ df, dt, search });
+  if (!fromInput || !toInput) {
+    console.error('Date input elements not found in the DOM.');
+    return;
+  }
+
+  const initialDf     = formatDateForApi(fromInput.value);
+  const initialDt     = formatDateForApi(toInput.value);
+  const initialSearch = searchInput?.value || '';
+
+  loadCodesData({ df: initialDf, dt: initialDt, search: initialSearch });
 }
+
 window.initCodesPage = initCodesPage;
 window.loadCodesData = loadCodesData;
