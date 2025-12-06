@@ -2,7 +2,8 @@ const ROUTES = {
   home: 'Pages/home.html',
   user: 'Pages/user.html',
   codes: 'Pages/codes.html',
-  sales: 'Pages/sales.html'
+  sales: 'Pages/sales.html',
+  userUpline: 'Pages/userUpline.html'
 };
 
 function initApp() {
