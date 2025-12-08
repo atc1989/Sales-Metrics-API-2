@@ -1,6 +1,6 @@
 // USER UPLINE CONFIG
 const USER_UPLINE_API_USER = 'ggitteam';
-const USER_UPLINE_ENDPOINT = '/api/user-upline'; // 👈 matches server.js route
+const USER_UPLINE_ENDPOINT = '/api/userUpline'; // 👈 matches server.js route
 
 function getUserUplineApiKey() {
   return generateApiKey(); // same helper you use for other pages
@@ -96,6 +96,12 @@ function initUserUplinePage() {
   const usernameInput = document.getElementById('user-upline-username');
   const filterForm    = document.getElementById('user-upline-filter-form');
 
+  const defaultUsername = 'GGUILD23'; // or Ironman, or whatever you tested in Postman
+
+  if (usernameInput) {
+    usernameInput.value = defaultUsername;
+  }
+
   if (filterForm) {
     filterForm.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -104,9 +110,10 @@ function initUserUplinePage() {
     });
   }
 
-  // Initial state: show prompt
-  loadUserUplineData({ username: '' });
+  // Initial auto-load for default user
+  loadUserUplineData({ username: defaultUsername });
 }
+
 
 window.loadUserUplineData = loadUserUplineData;
 window.initUserUplinePage = initUserUplinePage;
