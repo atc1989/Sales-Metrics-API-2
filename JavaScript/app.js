@@ -63,6 +63,10 @@ async function loadPage(route, path) {
     if (route === 'user' && typeof window.initUsersPage === 'function') {
       window.initUsersPage();
     }
+
+    if (route === 'userUpline' && typeof window.initUserUplinePage === 'function') {
+      window.initUserUplinePage();
+    }
     
   } catch (error) {
     console.error(error);
