@@ -3,7 +3,7 @@
 import crypto from 'crypto';
 
 // This hash is what you use in Postman to load the whole tree
-const ROOT_DOWNLINE_HASH = 'b1a2f3c4d5e6f708192a0b1c2d3e4f50';
+const ROOT_DOWNLINE_HASH = '6e532682ce16ea8c4011b6f711d97975';
 
 export default async function handler(req, res) {
   try {
