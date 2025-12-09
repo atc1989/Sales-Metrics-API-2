@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   try {
     const { user, apikey, username, accounthash } = req.query;
 
-    const url = new URL('https://gmin.onegrindersguild.com/api.get.sponsored.php');
+    const url = new URL('https://gmin.onegrindersguild.com/api.get.user.sponsored.php');
 
     if (user)   url.searchParams.set('user', user);
     if (apikey) url.searchParams.set('apikey', apikey);
