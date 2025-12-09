@@ -1,12 +1,9 @@
-// USER UPLINE CONFIG
+// SPONSORED DOWNLINE CONFIG
 const SPONSORED_DOWNLINE_API_USER = 'ggitteam';
 const SPONSORED_DOWNLINE_ENDPOINT = '/api/sponsoredDownline';
 
-// cache of the "root" upline data loaded on first call
-let sponsoredDownlineCache = [];
-
 function getSponsoredDownlineApiKey() {
-  return generateApiKey(); // same helper as other pages
+  return generateApiKey(); // same helper as everywhere else
 }
 
 // SUMMARY
@@ -34,21 +31,21 @@ function renderSponsoredDownlineSummary(rows, summaryEl) {
 function renderSponsoredDownlineTable(rows) {
   const tableContainer = document.getElementById('sponsored-downline-table-container');
   const columns = [
-        { key: 'idno',          label: 'ID NO' },
-        { key: 'registered',    label: 'REGISTERED' },
-        { key: 'user_name',     label: 'USER NAME' },
-        { key: 'user',          label: 'USER' },
-        { key: 'account_type',  label: 'ACCOUNT TYPE' },
-        { key: 'payment',       label: 'PAYMENT' }
-    ];
+    { key: 'idno',         label: 'ID NO' },
+    { key: 'registered',   label: 'REGISTERED' },
+    { key: 'user_name',    label: 'USER NAME' },
+    { key: 'user',         label: 'USER' },
+    { key: 'account_type', label: 'ACCOUNT TYPE' },
+    { key: 'payment',      label: 'PAYMENT' }
+  ];
 
   renderTable(tableContainer, columns, rows);
 }
 
 /**
  * Load data:
- * - If reloadFromServer = true → call API (root hash on backend), cache rows
- * - If reloadFromServer = false & username provided → just filter cached rows
+ * - Always calls the API (like userUpline)
+ * - If username is empty → backend uses its ROOT_DOWNLINE_HASH or default
  */
 async function loadSponsoredDownlineData({ username }) {
   const tableContainer = document.getElementById('sponsored-downline-table-container');
@@ -65,7 +62,7 @@ async function loadSponsoredDownlineData({ username }) {
       apikey: getSponsoredDownlineApiKey()
     };
 
-    // Only send username if there is one; otherwise backend uses ROOT_UPLINE_HASH
+    // Only send username if there is one; otherwise backend uses its root hash
     if (username) {
       params.username = username;
     }
@@ -105,26 +102,9 @@ function initSponsoredDownlinePage() {
     });
   }
 
-  // Initial load with NO username → backend uses ROOT_UPLINE_HASH
+  // Initial load with NO username → backend uses its default/root
   loadSponsoredDownlineData({ username: '' });
 }
 
-
 window.loadSponsoredDownlineData = loadSponsoredDownlineData;
 window.initSponsoredDownlinePage = initSponsoredDownlinePage;
-
-// TABLE WRAPPER (uses shared renderTable from common.js)
-/* function renderSponsoredDownlineTable(rows) {
-  const tableContainer = document.getElementById('sponsored-downline-container');
-    const columns = [
-        { key: 'idno',          label: 'ID NO' },
-        { key: 'registered',    label: 'REGISTERED' },
-        { key: 'user_name',     label: 'USER NAME' },
-        { key: 'user',          label: 'USER' },
-        { key: 'account_type',  label: 'ACCOUNT TYPE' },
-        { key: 'payment',       label: 'PAYMENT' }
-    ];
-
-    renderTable(tableContainer, columns, rows);
-}
-*/
