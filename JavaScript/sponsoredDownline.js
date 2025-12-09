@@ -34,11 +34,11 @@ function renderSponsoredDownlineSummary(rows, summaryEl) {
 function renderSponsoredDownlineTable(rows) {
   const tableContainer = document.getElementById('sponsored-downline-table-container');
     const columns = [
-        { key: 'idno',       label: 'ID NO' },
-        { key: 'registered',       label: 'REGISTERED' },
-        { key: 'user_name',       label: 'USER NAME' },
-        { key: 'user',       label: 'USER' },
-        { key: 'account_type',       label: 'ACCOUNT TYPE' },
+        { key: 'idno',          label: 'ID NO' },
+        { key: 'registered',    label: 'REGISTERED' },
+        { key: 'user_name',     label: 'USER NAME' },
+        { key: 'user',          label: 'USER' },
+        { key: 'account_type',  label: 'ACCOUNT TYPE' },
         { key: 'payment',       label: 'PAYMENT' }
     ];
 
