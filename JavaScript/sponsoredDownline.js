@@ -3,7 +3,7 @@ const SPONSORED_DOWNLINE_API_USER = 'ggitteam';
 const SPONSORED_DOWNLINE_ENDPOINT = '/api/sponsoredDownline';
 
 function getSponsoredDownlineApiKey() {
-  return generateApiKey(); // same helper as everywhere else
+  return generateApiKey(); // same helper as other pages
 }
 
 // SUMMARY
@@ -27,7 +27,7 @@ function renderSponsoredDownlineSummary(rows, summaryEl) {
   `;
 }
 
-// TABLE WRAPPER (uses shared renderTable from common.js)
+// TABLE (uses shared renderTable from common.js)
 function renderSponsoredDownlineTable(rows) {
   const tableContainer = document.getElementById('sponsored-downline-table-container');
   const columns = [
@@ -42,11 +42,7 @@ function renderSponsoredDownlineTable(rows) {
   renderTable(tableContainer, columns, rows);
 }
 
-/**
- * Load data:
- * - Always calls the API (like userUpline)
- * - If username is empty → backend uses its ROOT_DOWNLINE_HASH or default
- */
+// DATA LOADING – always call the API (like your "proper" user upline)
 async function loadSponsoredDownlineData({ username }) {
   const tableContainer = document.getElementById('sponsored-downline-table-container');
   const summaryEl      = document.getElementById('sponsored-downline-summary');
@@ -62,14 +58,19 @@ async function loadSponsoredDownlineData({ username }) {
       apikey: getSponsoredDownlineApiKey()
     };
 
-    // Only send username if there is one; otherwise backend uses its root hash
+    // Only send username if specified – backend turns it into accounthash
     if (username) {
       params.username = username;
     }
 
     const result = await apiGet(SPONSORED_DOWNLINE_ENDPOINT, params);
 
-    const rows = Array.isArray(result?.data) ? result.data : [];
+    // Robust shape handling: { data: [...] } OR plain [...]
+    const rows = Array.isArray(result?.data)
+      ? result.data
+      : Array.isArray(result)
+        ? result
+        : [];
 
     if (!rows.length) {
       console.warn('No sponsored downline data found for username:', username || '(root)');
@@ -102,7 +103,7 @@ function initSponsoredDownlinePage() {
     });
   }
 
-  // Initial load with NO username → backend uses its default/root
+  // Initial load with NO username → backend uses ROOT_DOWNLINE_HASH
   loadSponsoredDownlineData({ username: '' });
 }
 
