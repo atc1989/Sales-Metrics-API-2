@@ -32,7 +32,7 @@ function renderSponsoredDownlineSummary(rows, summaryEl) {
 
 // TABLE WRAPPER (uses shared renderTable from common.js)
 function renderSponsoredDownlineTable(rows) {
-  const tableContainer = document.getElementById('sponsored-downline-table-container');
+  const tableContainer = document.getElementById('sponsored-downline-container');
     const columns = [
         { key: 'idno',          label: 'ID NO' },
         { key: 'registered',    label: 'REGISTERED' },
