@@ -7,7 +7,8 @@ const ROUTES = {
   sponsoredDownline: 'Pages/sponsoredDownline.html',
   binaryDownline: 'Pages/binaryDownline.html',
   unilevelDownline: 'Pages/unilevelDownline.html',
-  unilevelUpline: 'Pages/unilevelUpline.html'
+  unilevelUpline: 'Pages/unilevelUpline.html',
+  personalAccounts: 'Pages/personalAccounts.html'
 };
 
 function initApp() {
@@ -86,6 +87,10 @@ async function loadPage(route, path) {
 
     if (route === 'unilevelUpline' && typeof window.initUnilevelUplinePage === 'function') {
       window.initUnilevelUplinePage();
+    }
+
+    if (route === 'personalAccounts' && typeof window.initPersonalAccountsPage === 'function') {
+      window.initPersonalAccountsPage();
     }
 
   } catch (error) {
