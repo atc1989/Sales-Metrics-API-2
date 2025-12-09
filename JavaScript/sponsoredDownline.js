@@ -46,7 +46,7 @@ function renderSponsoredDownlineTable(rows) {
 }
 
 async function loadSponsoredDownlineData({ username, reloadFromServer }) {
-    const tableContainer = document.getElementById('sponsored-downline-table-container');
+    const tableContainer = document.getElementById('sponsored-downline-container');
     const summaryEl      = document.getElementById('sponsored-downline-summary');
 
     // 1) Client-side filter mode (no API call)
