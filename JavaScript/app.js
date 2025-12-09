@@ -6,7 +6,8 @@ const ROUTES = {
   userUpline: 'Pages/userUpline.html',
   sponsoredDownline: 'Pages/sponsoredDownline.html',
   binaryDownline: 'Pages/binaryDownline.html',
-  unilevelDownline: 'Pages/unilevelDownline.html'
+  unilevelDownline: 'Pages/unilevelDownline.html',
+  unilevelUpline: 'Pages/unilevelUpline.html'
 };
 
 function initApp() {
@@ -81,6 +82,10 @@ async function loadPage(route, path) {
 
     if (route === 'unilevelDownline' && typeof window.initUnilevelDownlinePage === 'function') {
       window.initUnilevelDownlinePage();
+    }
+
+    if (route === 'unilevelUpline' && typeof window.initUnilevelUplinePage === 'function') {
+      window.initUnilevelUplinePage();
     }
 
   } catch (error) {
