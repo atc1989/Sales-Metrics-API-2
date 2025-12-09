@@ -5,7 +5,8 @@ const ROUTES = {
   sales: 'Pages/sales.html',
   userUpline: 'Pages/userUpline.html',
   sponsoredDownline: 'Pages/sponsoredDownline.html',
-  binaryDownline: 'Pages/binaryDownline.html'
+  binaryDownline: 'Pages/binaryDownline.html',
+  unilevelDownline: 'Pages/unilevelDownline.html'
 };
 
 function initApp() {
