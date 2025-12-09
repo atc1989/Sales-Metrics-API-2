@@ -49,41 +49,33 @@ function renderUserUplineTable(rows) {
  * - If reloadFromServer = true → call API (root hash on backend), cache rows
  * - If reloadFromServer = false & username provided → just filter cached rows
  */
-async function loadUserUplineData({ username, reloadFromServer }) {
+async function loadUserUplineData({ username }) {
   const tableContainer = document.getElementById('user-upline-table-container');
   const summaryEl      = document.getElementById('user-upline-summary');
 
-  // 1) Client-side filter mode (no API call)
-  if (!reloadFromServer && username && userUplineCache.length) {
-    const q = username.toLowerCase();
-
-    const filtered = userUplineCache.filter(row => {
-      const uname = (row.user_name || '').toLowerCase();
-      const user  = (row.user || '').toLowerCase();
-      return uname.includes(q) || user.includes(q);
-    });
-
-    renderUserUplineSummary(filtered, summaryEl);
-    renderUserUplineTable(filtered);
-    return filtered;
-  }
-
-  // 2) Server mode: load full tree (root hash handled by backend)
   if (tableContainer) {
     tableContainer.innerHTML =
       '<div class="empty-state">Loading user upline data...</div>';
   }
 
   try {
-    const result = await apiGet(USER_UPLINE_ENDPOINT, {
+    const params = {
       user:   USER_UPLINE_API_USER,
       apikey: getUserUplineApiKey()
-      // NOTE: no username here → backend uses ROOT_UPLINE_HASH
-    });
+    };
+
+    // Only send username if there is one; otherwise backend uses ROOT_UPLINE_HASH
+    if (username) {
+      params.username = username;
+    }
+
+    const result = await apiGet(USER_UPLINE_ENDPOINT, params);
 
     const rows = Array.isArray(result?.data) ? result.data : [];
 
-    userUplineCache = rows; // cache the full list
+    if (!rows.length) {
+      console.warn('No user upline data found for username:', username || '(root)');
+    }
 
     renderUserUplineSummary(rows, summaryEl);
     renderUserUplineTable(rows);
@@ -99,6 +91,7 @@ async function loadUserUplineData({ username, reloadFromServer }) {
   }
 }
 
+
 // PAGE INIT
 function initUserUplinePage() {
   const usernameInput = document.getElementById('user-upline-username');
@@ -108,20 +101,14 @@ function initUserUplinePage() {
     filterForm.addEventListener('submit', (event) => {
       event.preventDefault();
       const username = usernameInput ? usernameInput.value.trim() : '';
-
-      if (!username) {
-        // empty → reset to full list from server
-        loadUserUplineData({ username: '', reloadFromServer: true });
-      } else {
-        // filter in cache
-        loadUserUplineData({ username, reloadFromServer: false });
-      }
+      loadUserUplineData({ username });
     });
   }
 
-  // Initial load: full tree (no username)
-  loadUserUplineData({ username: '', reloadFromServer: true });
+  // Initial load with NO username → backend uses ROOT_UPLINE_HASH
+  loadUserUplineData({ username: '' });
 }
+
 
 window.loadUserUplineData = loadUserUplineData;
 window.initUserUplinePage = initUserUplinePage;

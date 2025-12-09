@@ -50,50 +50,42 @@ function renderSponsoredDownlineTable(rows) {
  * - If reloadFromServer = true → call API (root hash on backend), cache rows
  * - If reloadFromServer = false & username provided → just filter cached rows
  */
-async function loadSponsoredDownlineData({ username, reloadFromServer }) {
+async function loadSponsoredDownlineData({ username }) {
   const tableContainer = document.getElementById('sponsored-downline-table-container');
   const summaryEl      = document.getElementById('sponsored-downline-summary');
 
-  // 1) Client-side filter mode (no API call)
-  if (!reloadFromServer && username && sponsoredDownlineCache.length) {
-    const q = username.toLowerCase();
-
-    const filtered = sponsoredDownlineCache.filter(row => {
-      const uname = (row.user_name || '').toLowerCase();
-      const user  = (row.user || '').toLowerCase();
-      return uname.includes(q) || user.includes(q);
-    });
-
-    renderSponsoredDownlineSummary(filtered, summaryEl);
-    renderSponsoredDownlineTable(filtered);
-    return filtered;
-  }
-
-  // 2) Server mode: load full tree (root hash handled by backend)
   if (tableContainer) {
     tableContainer.innerHTML =
-      '<div class="empty-state">Loading user upline data...</div>';
+      '<div class="empty-state">Loading sponsored downline data...</div>';
   }
 
   try {
-    const result = await apiGet(USER_UPLINE_ENDPOINT, {
-      user:   USER_UPLINE_API_USER,
+    const params = {
+      user:   SPONSORED_DOWNLINE_API_USER,
       apikey: getSponsoredDownlineApiKey()
-      // NOTE: no username here → backend uses ROOT_UPLINE_HASH
-    });
+    };
+
+    // Only send username if there is one; otherwise backend uses ROOT_UPLINE_HASH
+    if (username) {
+      params.username = username;
+    }
+
+    const result = await apiGet(SPONSORED_DOWNLINE_ENDPOINT, params);
 
     const rows = Array.isArray(result?.data) ? result.data : [];
 
-    sponsoredDownlineCache = rows; // cache the full list
+    if (!rows.length) {
+      console.warn('No sponsored downline data found for username:', username || '(root)');
+    }
 
     renderSponsoredDownlineSummary(rows, summaryEl);
     renderSponsoredDownlineTable(rows);
     return rows;
   } catch (error) {
-    console.error('Failed to load user upline data', error);
+    console.error('Failed to load sponsored downline data', error);
     if (tableContainer) {
       tableContainer.innerHTML =
-        '<div class="empty-state">Sorry, we could not load the user upline data. Please try again.</div>';
+        '<div class="empty-state">Sorry, we could not load the sponsored downline data. Please try again.</div>';
     }
     if (summaryEl) summaryEl.innerHTML = '';
     return [];
@@ -109,21 +101,14 @@ function initSponsoredDownlinePage() {
     filterForm.addEventListener('submit', (event) => {
       event.preventDefault();
       const username = usernameInput ? usernameInput.value.trim() : '';
-
-      if (!username) {
-        // empty → reset to full list from server
-        loadSponsoredDownlineData({ username: '', reloadFromServer: true });
-      } else {
-        // filter in cache
-        console.log('Filtering sponsored downline for username:', username);
-        loadSponsoredDownlineData({ username, reloadFromServer: false });
-      }
+      loadSponsoredDownlineData({ username });
     });
   }
 
-  // Initial load: full tree (no username)
-  loadSponsoredDownlineData({ username: '', reloadFromServer: true });
+  // Initial load with NO username → backend uses ROOT_UPLINE_HASH
+  loadSponsoredDownlineData({ username: '' });
 }
+
 
 window.loadSponsoredDownlineData = loadSponsoredDownlineData;
 window.initSponsoredDownlinePage = initSponsoredDownlinePage;
