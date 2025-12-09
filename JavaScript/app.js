@@ -8,7 +8,8 @@ const ROUTES = {
   binaryDownline: 'Pages/binaryDownline.html',
   unilevelDownline: 'Pages/unilevelDownline.html',
   unilevelUpline: 'Pages/unilevelUpline.html',
-  personalAccounts: 'Pages/personalAccounts.html'
+  personalAccounts: 'Pages/personalAccounts.html',
+  mlmSwagger: 'Pages/mlmSwagger.html',
 };
 
 function initApp() {

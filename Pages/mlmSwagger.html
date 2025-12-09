@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLM Network & Commission API Documentation</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; margin: 0; padding: 20px; background-color: #f7f7f7; color: #333; }
+        .container { max-width: 1200px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        h1 { color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 20px; }
+        h2, h3 { color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-top: 25px; }
+        h3 { color: #007bff; margin-top: 15px; }
+        .endpoint-group { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 6px; background-color: #fafafa; }
+        .endpoint-path { font-family: monospace; background-color: #e9ecef; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-bottom: 10px; color: #d63384; font-size: 1.1em; }
+        .method { padding: 3px 8px; color: white; border-radius: 4px; font-weight: bold; margin-right: 10px; text-transform: uppercase; font-size: 0.9em; }
+        .get { background-color: #61affe; }
+        .post { background-color: #49cc90; }
+        .put { background-color: #fca130; }
+        .delete { background-color: #f93e3e; }
+        .operation { margin-bottom: 15px; padding-left: 10px; border-left: 3px solid #ccc; }
+        .summary { font-style: italic; margin-bottom: 10px; color: #555; }
+        .schema-section { margin-top: 40px; }
+        .schema-box { border: 1px solid #007bff; border-radius: 6px; padding: 15px; margin-bottom: 20px; background-color: #eaf3ff; }
+        .schema-name { color: #007bff; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #fff; }
+        th, td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; font-size: 0.9em; }
+        th { background-color: #007bff; color: white; }
+        .required-col { color: #f93e3e; font-weight: bold; }
+        .ref { color: #d63384; font-family: monospace; }
+        .server-url { font-family: monospace; background-color: #f0f0f0; padding: 2px 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>MLM Network & Commission API</h1>
+    <p><strong>Version:</strong> 1.0.0</p>
+    <p>API for Multilevel & Unilevel commissions, Binary pairing, SKU-based commission configuration, member stores, inventory transfers, and wallet management.</p>
+
+    <hr>
+
+    <section>
+        <h2>Servers</h2>
+        <ul>
+            <li><strong>Production:</strong> <span class="server-url">https://api.example.com</span></li>
+            <li><strong>Sandbox:</strong> <span class="server-url">https://sandbox.api.example.com</span></li>
+        </ul>
+        <p><strong>Security:</strong> All endpoints require **Bearer Token (JWT)** authentication.</p>
+    </section>
+
+    <hr>
+
+    <section>
+        <h2>API Endpoints (Paths)</h2>
+
+        <div class="endpoint-group">
+            <h3>Member Types</h3>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/member-types</span>
+                <p class="summary">Get all member types</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">MemberType</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/member-types</span>
+                <p class="summary">Create a member type</p>
+                <p><strong>Request Body:</strong> <span class="ref">MemberType</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Created <span class="ref">MemberType</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/member-types/{id}</span>
+                <p class="summary">Get member type by id</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">MemberType</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method put">PUT</span> <span class="endpoint-path">/api/member-types/{id}</span>
+                <p class="summary">Update member type</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Request Body:</strong> <span class="ref">MemberType</span></p>
+                <p><strong>Response:</strong> <code>200</code> (Updated)</p>
+            </div>
+            <div class="operation">
+                <span class="method delete">DELETE</span> <span class="endpoint-path">/api/member-types/{id}</span>
+                <p class="summary">Delete member type</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>204</code> (Deleted)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>SKUs & Commission Config</h3>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/skus</span>
+                <p class="summary">Get all SKUs</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">Sku</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/skus</span>
+                <p class="summary">Create SKU</p>
+                <p><strong>Request Body:</strong> <span class="ref">Sku</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Created <span class="ref">Sku</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/skus/{id}</span>
+                <p class="summary">Get SKU by id</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">Sku</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method put">PUT</span> <span class="endpoint-path">/api/skus/{id}</span>
+                <p class="summary">Update SKU</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Request Body:</strong> <span class="ref">Sku</span></p>
+                <p><strong>Response:</strong> <code>200</code> (Updated)</p>
+            </div>
+            <div class="operation">
+                <span class="method delete">DELETE</span> <span class="endpoint-path">/api/skus/{id}</span>
+                <p class="summary">Delete SKU</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>204</code> (Deleted)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/skus/{id}/commission-config</span>
+                <p class="summary">Get commission config for SKU</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">SkuCommissionConfig</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method put">PUT</span> <span class="endpoint-path">/api/skus/{id}/commission-config</span>
+                <p class="summary">Update commission config for SKU</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Request Body:</strong> <span class="ref">SkuCommissionConfig</span></p>
+                <p><strong>Response:</strong> <code>200</code> (Updated)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Members & Trees</h3>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/members/register</span>
+                <p class="summary">Register member</p>
+                <p><strong>Request Body:</strong> <span class="ref">MemberRegistrationRequest</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Registered <span class="ref">Member</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/members/{id}</span>
+                <p class="summary">Get member by id</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">Member</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/members/{id}/tree/unilevel</span>
+                <p class="summary">Get unilevel tree for member</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (Unilevel <span class="ref">TreeNode</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/members/{id}/tree/binary</span>
+                <p class="summary">Get binary tree for member</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (Binary <span class="ref">TreeNode</span>)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Orders & Queue</h3>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/orders</span>
+                <p class="summary">Create order</p>
+                <p><strong>Request Body:</strong> <span class="ref">OrderCreateRequest</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Created <span class="ref">Order</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/orders</span>
+                <p class="summary">Get all orders (optional filter)</p>
+                <p><strong>Query Parameter:</strong> <code>memberId</code> (integer, optional)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">Order</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/orders/{id}</span>
+                <p class="summary">Get order by id</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">Order</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/members/{id}/orders</span>
+                <p class="summary">Get orders by member</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">Order</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/commissions/queue/order/{orderId}</span>
+                <p class="summary">Queue order for commission processing</p>
+                <p><strong>Path Parameter:</strong> <code>orderId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>202</code> (Queued)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Direct & Unilevel Commissions</h3>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/commissions/direct/{orderId}</span>
+                <p class="summary">Process direct referral commission for order</p>
+                <p><strong>Path Parameter:</strong> <code>orderId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">CommissionRecord</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/commissions/direct</span>
+                <p class="summary">Get direct referral commissions by sponsor</p>
+                <p><strong>Query Parameter:</strong> <code>sponsorId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">CommissionRecord</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/commissions/unilevel/{orderId}</span>
+                <p class="summary">Process unilevel commissions for order</p>
+                <p><strong>Path Parameter:</strong> <code>orderId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">CommissionRecord</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/commissions/unilevel</span>
+                <p class="summary">Get unilevel commissions for member</p>
+                <p><strong>Query Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">CommissionRecord</span>)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Leadership</h3>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/leadership-ranks</span>
+                <p class="summary">Get leadership ranks</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">LeadershipRank</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/leadership-ranks</span>
+                <p class="summary">Create leadership rank</p>
+                <p><strong>Request Body:</strong> <span class="ref">LeadershipRank</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Created)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/commissions/leadership/{orderId}</span>
+                <p class="summary">Process leadership bonus related to order or pairs</p>
+                <p><strong>Path Parameter:</strong> <code>orderId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">CommissionRecord</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/commissions/leadership</span>
+                <p class="summary">Get leadership commissions</p>
+                <p><strong>Query Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">CommissionRecord</span>)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Binary Volume & Pairing</h3>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/binary/volume/apply/{orderId}</span>
+                <p class="summary">Apply binary volume for order</p>
+                <p><strong>Path Parameter:</strong> <code>orderId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (Applied)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/binary/volume/{memberId}</span>
+                <p class="summary">Get binary volume for member</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">BinaryVolume</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/binary/pairing/run</span>
+                <p class="summary">Run binary pairing engine</p>
+                <p><strong>Response:</strong> <code>200</code> (Pairing executed)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/binary/pairs</span>
+                <p class="summary">Get binary pairs for member</p>
+                <p><strong>Query Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">BinaryPairRecord</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/commissions/binary</span>
+                <p class="summary">Get binary commissions for member</p>
+                <p><strong>Query Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">CommissionRecord</span>)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Ladder / Rank Progression</h3>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/ladder/rules</span>
+                <p class="summary">Get ladder rules</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">LadderRule</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/ladder/rules</span>
+                <p class="summary">Create or update ladder rule</p>
+                <p><strong>Request Body:</strong> <span class="ref">LadderRule</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Created or updated)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/ladder/evaluate/member/{memberId}</span>
+                <p class="summary">Evaluate ladder progression for a member</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">LadderHistory</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/ladder/evaluate/batch</span>
+                <p class="summary">Batch evaluate ladder progression</p>
+                <p><strong>Response:</strong> <code>200</code> (Batch evaluation started)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/members/{id}/ladder-history</span>
+                <p class="summary">Get ladder history for member</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">LadderHistory</span>)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Stores & Inventory</h3>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/stores/activate</span>
+                <p class="summary">Activate member store</p>
+                <p><strong>Request Body:</strong> <span class="ref">StoreActivationRequest</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Store activated <span class="ref">Store</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/stores/by-member/{memberId}</span>
+                <p class="summary">Get stores by member</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">Store</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method put">PUT</span> <span class="endpoint-path">/api/stores/{storeId}/status</span>
+                <p class="summary">Update store status</p>
+                <p><strong>Path Parameter:</strong> <code>storeId</code> (integer, required)</p>
+                <p><strong>Request Body:</strong> <code>{status: string}</code> (PENDING, ACTIVE, INACTIVE)</p>
+                <p><strong>Response:</strong> <code>200</code> (Updated)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/stores/{storeId}/inventory</span>
+                <p class="summary">Get store inventory</p>
+                <p><strong>Path Parameter:</strong> <code>storeId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">InventoryItem</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/stores/{storeId}/sales</span>
+                <p class="summary">Get store sales</p>
+                <p><strong>Path Parameter:</strong> <code>storeId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">Order</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/inventory/transfers</span>
+                <p class="summary">Create inventory transfer</p>
+                <p><strong>Request Body:</strong> <span class="ref">InventoryTransferRequest</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Transfer created <span class="ref">InventoryTransfer</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/inventory/transfers/{id}</span>
+                <p class="summary">Get inventory transfer by id</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">InventoryTransfer</span>)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Wallet & Payouts</h3>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/wallet/{memberId}</span>
+                <p class="summary">Get wallet balance</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">Wallet</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/wallet/{memberId}/transactions</span>
+                <p class="summary">Get wallet transactions</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">WalletTransaction</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/wallet/credit</span>
+                <p class="summary">Credit wallet (internal)</p>
+                <p><strong>Request Body:</strong> <span class="ref">WalletCreditRequest</span></p>
+                <p><strong>Response:</strong> <code>200</code> (Credited)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/wallet/debit</span>
+                <p class="summary">Debit wallet (internal)</p>
+                <p><strong>Request Body:</strong> <span class="ref">WalletDebitRequest</span></p>
+                <p><strong>Response:</strong> <code>200</code> (Debited)</p>
+            </div>
+            <div class="operation">
+                <span class="method post">POST</span> <span class="endpoint-path">/api/payouts/request</span>
+                <p class="summary">Create payout request</p>
+                <p><strong>Request Body:</strong> <span class="ref">PayoutRequestCreate</span></p>
+                <p><strong>Response:</strong> <code>201</code> (Created <span class="ref">PayoutRequest</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/payouts</span>
+                <p class="summary">Get payout requests</p>
+                <p><strong>Query Parameter:</strong> <code>memberId</code> (integer, optional)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">PayoutRequest</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method put">PUT</span> <span class="endpoint-path">/api/payouts/{id}/approve</span>
+                <p class="summary">Approve payout request</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (Approved)</p>
+            </div>
+            <div class="operation">
+                <span class="method put">PUT</span> <span class="endpoint-path">/api/payouts/{id}/reject</span>
+                <p class="summary">Reject payout request</p>
+                <p><strong>Path Parameter:</strong> <code>id</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (Rejected)</p>
+            </div>
+        </div>
+
+        <div class="endpoint-group">
+            <h3>Reports</h3>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/reports/commissions/summary</span>
+                <p class="summary">Get commission summary</p>
+                <p><strong>Query Parameters:</strong> <code>from</code> (date, optional), <code>to</code> (date, optional)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">CommissionSummary</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/reports/member/{memberId}/commissions</span>
+                <p class="summary">Get all commissions for a member</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (List of <span class="ref">CommissionRecord</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/reports/tree/unilevel/{memberId}</span>
+                <p class="summary">Get unilevel tree with volume & ranks</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">TreeNode</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/reports/tree/binary/{memberId}</span>
+                <p class="summary">Get binary tree with volume & ranks</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (<span class="ref">TreeNode</span>)</p>
+            </div>
+            <div class="operation">
+                <span class="method get">GET</span> <span class="endpoint-path">/api/reports/member/{memberId}/volume</span>
+                <p class="summary">Get member volume summary</p>
+                <p><strong>Path Parameter:</strong> <code>memberId</code> (integer, required)</p>
+                <p><strong>Response:</strong> <code>200</code> (Volume summary including <span class="ref">BinaryVolume</span>)</p>
+            </div>
+        </div>
+
+    </section>
+
+    <hr>
+
+    <section class="schema-section">
+        <h2>Data Models (Schemas)</h2>
+
+        <div class="schema-box">
+            <div class="schema-name">MemberType</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Example/Description</th></tr></thead>
+                <tbody>
+                    <tr><td>id</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>name</td><td>string</td><td></td><td>Silver</td></tr>
+                    <tr><td>code</td><td>string</td><td></td><td>SILVER</td></tr>
+                    <tr><td>directReferralRate</td><td>number</td><td>float</td><td>0.10</td></tr>
+                    <tr><td>unilevelRates</td><td>array of number</td><td>float</td><td>[0.1, 0.05, 0.03, 0.02, 0.01] (Rates for each unilevel depth)</td></tr>
+                    <tr><td>binaryPairRate</td><td>number</td><td>float</td><td></td></tr>
+                    <tr><td>leadershipBonusRate</td><td>number</td><td>float</td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">Sku</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>id</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>code</td><td>string</td><td></td><td></td></tr>
+                    <tr><td>name</td><td>string</td><td></td><td></td></tr>
+                    <tr><td>description</td><td>string</td><td></td><td></td></tr>
+                    <tr><td>price</td><td>number</td><td>float</td><td></td></tr>
+                    <tr><td>isActive</td><td>boolean</td><td></td><td></td></tr>
+                    <tr><td>commissionConfig</td><td>object</td><td></td><td><span class="ref">SkuCommissionConfig</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">SkuCommissionConfig</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>skuId</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>binaryEnabled</td><td>boolean</td><td></td><td></td></tr>
+                    <tr><td>binaryPoints</td><td>number</td><td>float</td><td>Points applied to binary volume</td></tr>
+                    <tr><td>unilevelEnabled</td><td>boolean</td><td></td><td></td></tr>
+                    <tr><td>maxUnilevelLevels</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>unilevelLevels</td><td>array of object</td><td></td><td>List of <span class="ref">SkuUnilevelLevelConfig</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">SkuUnilevelLevelConfig</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>level</td><td>integer</td><td></td><td>Depth level (e.g., 1, 2, 3)</td></tr>
+                    <tr><td>points</td><td>number</td><td>float</td><td>Points/PV generated at this level</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="schema-box">
+            <div class="schema-name">Member</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>id</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>code</td><td>string</td><td></td><td></td></tr>
+                    <tr><td>firstName</td><td>string</td><td></td><td></td></tr>
+                    <tr><td>lastName</td><td>string</td><td></td><td></td></tr>
+                    <tr><td>email</td><td>string</td><td></td><td></td></tr>
+                    <tr><td>memberTypeId</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>sponsorId</td><td>integer</td><td>nullable</td><td>Direct referrer ID</td></tr>
+                    <tr><td>unilevelUplineId</td><td>integer</td><td>nullable</td><td>Immediate upline for Unilevel tree structure</td></tr>
+                    <tr><td>binaryUplineId</td><td>integer</td><td>nullable</td><td>Immediate upline for Binary tree structure</td></tr>
+                    <tr><td>binarySide</td><td>string</td><td>enum</td><td>LEFT, RIGHT, NONE</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="schema-box">
+            <div class="schema-name">MemberRegistrationRequest</div>
+            <p>**Required:** <code>firstName</code>, <code>lastName</code>, <code>email</code>, <code>memberTypeId</code></p>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>firstName</td><td>string</td><td></td><td class="required-col">Required</td></tr>
+                    <tr><td>lastName</td><td>string</td><td></td><td class="required-col">Required</td></tr>
+                    <tr><td>email</td><td>string</td><td></td><td class="required-col">Required</td></tr>
+                    <tr><td>mobile</td><td>string</td><td></td><td></td></tr>
+                    <tr><td>memberTypeId</td><td>integer</td><td></td><td class="required-col">Required</td></tr>
+                    <tr><td>sponsorId</td><td>integer</td><td>nullable</td><td>ID of the direct referrer</td></tr>
+                    <tr><td>unilevelUplineId</td><td>integer</td><td>nullable</td><td>ID of the unilevel placement upline</td></tr>
+                    <tr><td>binaryUplineId</td><td>integer</td><td>nullable</td><td>ID of the binary placement upline</td></tr>
+                    <tr><td>binarySide</td><td>string</td><td>enum</td><td>LEFT or RIGHT (Placement side in binary tree)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">TreeNode</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>member</td><td>object</td><td></td><td><span class="ref">Member</span> data for this node</td></tr>
+                    <tr><td>children</td><td>array of object</td><td></td><td>List of child <span class="ref">TreeNode</span> objects</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">Order</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>id</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>memberId</td><td>integer</td><td></td><td>Member who placed the order</td></tr>
+                    <tr><td>storeId</td><td>integer</td><td></td><td>Store where the order was placed</td></tr>
+                    <tr><td>totalAmount</td><td>number</td><td>float</td><td>Total value of the order</td></tr>
+                    <tr><td>totalPV</td><td>number</td><td>float</td><td>Total Point Volume (PV) of the order</td></tr>
+                    <tr><td>status</td><td>string</td><td>enum</td><td>PENDING, PAID, CANCELLED</td></tr>
+                    <tr><td>channel</td><td>string</td><td>enum</td><td>ONLINE, POS</td></tr>
+                    <tr><td>createdAt</td><td>string</td><td>date-time</td><td></td></tr>
+                    <tr><td>items</td><td>array of object</td><td></td><td>List of <span class="ref">OrderItem</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">OrderItem</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>skuId</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>quantity</td><td>number</td><td></td><td></td></tr>
+                    <tr><td>unitPrice</td><td>number</td><td>float</td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">CommissionRecord</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>id</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>memberId</td><td>integer</td><td></td><td>Member receiving the commission</td></tr>
+                    <tr><td>type</td><td>string</td><td>enum</td><td>DIRECT, UNILEVEL, BINARY, LEADERSHIP, STORE_PROFIT, OTHER</td></tr>
+                    <tr><td>orderId</td><td>integer</td><td>nullable</td><td>Reference to the generating order</td></tr>
+                    <tr><td>pairId</td><td>integer</td><td>nullable</td><td>Reference to the generating binary pair record</td></tr>
+                    <tr><td>amount</td><td>number</td><td>float</td><td>Commission amount</td></tr>
+                    <tr><td>currency</td><td>string</td><td></td><td>Example: PHP</td></tr>
+                    <tr><td>createdAt</td><td>string</td><td>date-time</td><td></td></tr>
+                    <tr><td>meta</td><td>object</td><td></td><td>Additional details</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">BinaryVolume</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>memberId</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>leftVolume</td><td>number</td><td></td><td>Current volume on the left leg</td></tr>
+                    <tr><td>rightVolume</td><td>number</td><td></td><td>Current volume on the right leg</td></tr>
+                    <tr><td>leftCarryForward</td><td>number</td><td></td><td>Carry forward volume on the left leg</td></tr>
+                    <tr><td>rightCarryForward</td><td>number</td><td></td><td>Carry forward volume on the right leg</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">Wallet</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>memberId</td><td>integer</td><td></td><td></td></tr>
+                    <tr><td>balance</td><td>number</td><td>float</td><td>Current balance</td></tr>
+                    <tr><td>currency</td><td>string</td><td></td><td>Example: PHP</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="schema-box">
+            <div class="schema-name">CommissionSummary</div>
+            <table>
+                <thead><tr><th>Property</th><th>Type</th><th>Format</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>from</td><td>string</td><td>date</td><td>Start date of summary period</td></tr>
+                    <tr><td>to</td><td>string</td><td>date</td><td>End date of summary period</td></tr>
+                    <tr><td>totalDirect</td><td>number</td><td></td><td></td></tr>
+                    <tr><td>totalUnilevel</td><td>number</td><td></td><td></td></tr>
+                    <tr><td>totalBinary</td><td>number</td><td></td><td></td></tr>
+                    <tr><td>totalLeadership</td><td>number</td><td></td><td></td></tr>
+                    <tr><td>totalStoreProfit</td><td>number</td><td></td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        </section>
+
+</div>
+</body>
+</html>
