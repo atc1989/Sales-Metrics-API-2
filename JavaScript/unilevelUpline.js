@@ -119,23 +119,27 @@ function initUnilevelUplinePage() {
 
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
-      window.exportRowsToCsv(
-        unilevelUplineColumns,
-        unilevelUplineVisibleRows,
-        'unilevel-upline.csv'
-      );
-      showExportSuccess('csv');
+      confirmExport('csv', () => {
+        window.exportRowsToCsv(
+          unilevelUplineColumns,
+          unilevelUplineVisibleRows,
+          'unilevel-upline.csv'
+        );
+        showExportSuccess('csv');
+      });
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
-      window.exportRowsToXlsx(
-        unilevelUplineColumns,
-        unilevelUplineVisibleRows,
-        'unilevel-upline.xlsx'
-      );
-      showExportSuccess('xlsx');
+      confirmExport('xlsx', () => {
+        window.exportRowsToXlsx(
+          unilevelUplineColumns,
+          unilevelUplineVisibleRows,
+          'unilevel-upline.xlsx'
+        );
+        showExportSuccess('xlsx');
+      });
     });
   }
 

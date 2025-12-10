@@ -119,23 +119,27 @@ function initPersonalAccountsPage() {
 
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
-      window.exportRowsToCsv(
-        personalAccountsColumns,
-        personalAccountsVisibleRows,
-        'personal-accounts.csv'
-      );
-      showExportSuccess('csv');
+      confirmExport('csv', () => {
+        window.exportRowsToCsv(
+          personalAccountsColumns,
+          personalAccountsVisibleRows,
+          'personal-accounts.csv'
+        );
+        showExportSuccess('csv');
+      });
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
-      window.exportRowsToXlsx(
-        personalAccountsColumns,
-        personalAccountsVisibleRows,
-        'personal-accounts.xlsx'
-      );
-      showExportSuccess('xlsx');
+      confirmExport('xlsx', () => {
+        window.exportRowsToXlsx(
+          personalAccountsColumns,
+          personalAccountsVisibleRows,
+          'personal-accounts.xlsx'
+        );
+        showExportSuccess('xlsx');
+      });
     });
   }
 

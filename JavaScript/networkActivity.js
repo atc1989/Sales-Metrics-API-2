@@ -116,23 +116,27 @@ function initNetworkActivityPage() {
 
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
-      window.exportRowsToCsv(
-        networkActivityColumns,
-        networkActivityVisibleRows,
-        'network-activity.csv'
-      );
-      showExportSuccess('csv');
+      confirmExport('csv', () => {
+        window.exportRowsToCsv(
+          networkActivityColumns,
+          networkActivityVisibleRows,
+          'network-activity.csv'
+        );
+        showExportSuccess('csv');
+      });
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
-      window.exportRowsToXlsx(
-        networkActivityColumns,
-        networkActivityVisibleRows,
-        'network-activity.xlsx'
-      );
-      showExportSuccess('xlsx');
+      confirmExport('xlsx', () => {
+        window.exportRowsToXlsx(
+          networkActivityColumns,
+          networkActivityVisibleRows,
+          'network-activity.xlsx'
+        );
+        showExportSuccess('xlsx');
+      });
     });
   }
 

@@ -166,6 +166,40 @@ function showExportSuccess(type) {
 
 window.showExportSuccess = showExportSuccess;
 
+// ---- EXPORT CONFIRMATION (shared) ----
+function confirmExport(type, onConfirm) {
+  if (typeof Swal === 'undefined') {
+    if (typeof onConfirm === 'function') {
+      onConfirm();
+    }
+    return;
+  }
+
+  let text = '';
+  if (type === 'csv') {
+    text = 'This will download the currently visible rows as CSV.';
+  } else if (type === 'xlsx') {
+    text = 'This will download the currently visible rows as Excel.';
+  } else {
+    text = 'This will download the current table data.';
+  }
+
+  Swal.fire({
+    title: 'Export table data?',
+    text,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, export',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed && typeof onConfirm === 'function') {
+      onConfirm();
+    }
+  });
+}
+
+window.confirmExport = confirmExport;
+
 // ---- PDF EXPORTER (shared) ----
 function exportTableToPdf(columns, rows, title) {
   if (!Array.isArray(rows) || rows.length === 0) {

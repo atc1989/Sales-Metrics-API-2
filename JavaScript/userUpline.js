@@ -118,15 +118,19 @@ function initUserUplinePage() {
 
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
-      exportRowsToCsv(userUplineColumns, userUplineVisibleRows, 'user-upline.csv');
-      showExportSuccess('csv');
+      confirmExport('csv', () => {
+        exportRowsToCsv(userUplineColumns, userUplineVisibleRows, 'user-upline.csv');
+        showExportSuccess('csv');
+      });
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
-      exportRowsToXlsx(userUplineColumns, userUplineVisibleRows, 'user-upline.xlsx');
-      showExportSuccess('xlsx');
+      confirmExport('xlsx', () => {
+        exportRowsToXlsx(userUplineColumns, userUplineVisibleRows, 'user-upline.xlsx');
+        showExportSuccess('xlsx');
+      });
     });
   }
 

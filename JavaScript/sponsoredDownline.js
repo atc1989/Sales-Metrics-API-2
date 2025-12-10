@@ -119,23 +119,27 @@ function initSponsoredDownlinePage() {
 
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
-      exportRowsToCsv(
-        sponsoredDownlineColumns,
-        sponsoredDownlineVisibleRows,
-        'sponsored-downline.csv'
-      );
-      showExportSuccess('csv');
+      confirmExport('csv', () => {
+        exportRowsToCsv(
+          sponsoredDownlineColumns,
+          sponsoredDownlineVisibleRows,
+          'sponsored-downline.csv'
+        );
+        showExportSuccess('csv');
+      });
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
-      exportRowsToXlsx(
-        sponsoredDownlineColumns,
-        sponsoredDownlineVisibleRows,
-        'sponsored-downline.xlsx'
-      );
-      showExportSuccess('xlsx');
+      confirmExport('xlsx', () => {
+        exportRowsToXlsx(
+          sponsoredDownlineColumns,
+          sponsoredDownlineVisibleRows,
+          'sponsored-downline.xlsx'
+        );
+        showExportSuccess('xlsx');
+      });
     });
   }
 

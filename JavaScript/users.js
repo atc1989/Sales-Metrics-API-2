@@ -168,15 +168,19 @@ function initUsersPage() {
 
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
-      exportRowsToCsv(userColumns, usersVisibleRows, 'users.csv');
-      showExportSuccess('csv');
+      confirmExport('csv', () => {
+        exportRowsToCsv(userColumns, usersVisibleRows, 'users.csv');
+        showExportSuccess('csv');
+      });
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
-      exportRowsToXlsx(userColumns, usersVisibleRows, 'users.xlsx');
-      showExportSuccess('xlsx');
+      confirmExport('xlsx', () => {
+        exportRowsToXlsx(userColumns, usersVisibleRows, 'users.xlsx');
+        showExportSuccess('xlsx');
+      });
     });
   }
 
