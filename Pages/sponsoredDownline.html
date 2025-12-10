@@ -13,14 +13,20 @@
              aria-label="Username for downline lookup" />
     </label>
     <button type="submit">Apply</button>
-    <input
-      id="sponsored-downline-table-search"
-      type="text"
-      class="toolbar-search"
-      placeholder="Search in table..."
-      aria-label="Search in loaded sponsored downline"
-    />
   </form>
+
+  <div class="table-toolbar">
+    <input
+      type="text"
+      id="sponsored-downline-table-search"
+      class="table-search-input"
+      placeholder="Search within current results…"
+      aria-label="Search in table"
+    />
+    <button type="button" id="sponsored-downline-export" class="table-export-button">
+      Export CSV
+    </button>
+  </div>
 
   <div id="sponsored-downline-summary" class="page-summary"></div>
   <div id="sponsored-downline-table-container" class="table-container"></div>

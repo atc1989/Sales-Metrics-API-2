@@ -73,3 +73,36 @@ function generateApiKey(date = new Date()) {
 
   return `${hh}${yyyy}${mm}${dd}`;
 }
+
+// ---- CSV EXPORTER (shared) ----
+function exportRowsToCsv(columns, rows, filename = 'export.csv') {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    alert('No data to export.');
+    return;
+  }
+
+  const escapeValue = (value) => {
+    const str = value == null ? '' : String(value);
+    const escaped = str.replace(/"/g, '""');
+    return /[",\n\r]/.test(str) ? `"${escaped}"` : escaped;
+  };
+
+  const headerLine = columns.map((col) => escapeValue(col.label)).join(',');
+  const bodyLines = rows.map((row) =>
+    columns.map((col) => escapeValue(row[col.key])).join(',')
+  );
+
+  const csvContent = [headerLine, ...bodyLines].join('\r\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+window.exportRowsToCsv = exportRowsToCsv;

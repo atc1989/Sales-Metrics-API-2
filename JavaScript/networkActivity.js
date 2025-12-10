@@ -2,7 +2,14 @@
 const NETWORK_ACTIVITY_API_USER = 'ggitteam';
 const NETWORK_ACTIVITY_ENDPOINT = '/api/networkActivity';
 
-let networkActivityRowsCache = [];
+const networkActivityColumns = [
+  { key: 'requestdate',   label: 'REQUEST DATE' },
+  { key: 'amount',        label: 'AMOUNT' },
+  { key: 'remarks',       label: 'REMARKS' }
+];
+
+let networkActivityAllRows = [];
+let networkActivityVisibleRows = [];
 
 function getNetworkActivityApiKey() {
   return generateApiKey(); // same helper as other pages
@@ -32,13 +39,8 @@ function renderNetworkActivitySummary(rows, summaryEl) {
 // TABLE (uses shared renderTable from common.js)
 function renderNetworkActivityTable(rows) {
   const tableContainer = document.getElementById('network-activity-table-container');
-  const columns = [
-    { key: 'requestdate',   label: 'REQUEST DATE' },
-    { key: 'amount',        label: 'AMOUNT' },
-    { key: 'remarks',       label: 'REMARKS' }
-  ];
 
-  renderTable(tableContainer, columns, rows);
+  renderTable(tableContainer, networkActivityColumns, rows);
 }
 
 // DATA LOADING – always call the API (like your "proper" user upline)
@@ -75,9 +77,10 @@ async function loadNetworkActivityData({ username }) {
       console.warn('No network activity data found for username:', username || '(root)');
     }
 
-    networkActivityRowsCache = rows;
-    renderNetworkActivitySummary(rows, summaryEl);
-    renderNetworkActivityTable(rows);
+    networkActivityAllRows = rows;
+    networkActivityVisibleRows = rows;
+    renderNetworkActivitySummary(networkActivityVisibleRows, summaryEl);
+    renderNetworkActivityTable(networkActivityVisibleRows);
     return rows;
   } catch (error) {
     console.error('Failed to load network activity data', error);
@@ -105,23 +108,44 @@ function initNetworkActivityPage() {
   }
 
   if (tableSearchInput) {
-    tableSearchInput.addEventListener('input', () => {
-      const term = tableSearchInput.value.trim().toLowerCase();
+    tableSearchInput.addEventListener('input', applyNetworkActivityTableSearch);
+  }
 
-      const rows = !term
-        ? networkActivityRowsCache
-        : networkActivityRowsCache.filter((row) =>
-            ['requestdate', 'remarks', 'amount'].some((key) =>
-              String(row[key] ?? '').toLowerCase().includes(term)
-            )
-          );
-
-      renderNetworkActivityTable(rows);
+  const exportBtn = document.getElementById('network-activity-export');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      window.exportRowsToCsv(
+        networkActivityColumns,
+        networkActivityVisibleRows,
+        'network-activity.csv'
+      );
     });
   }
 
   // Initial load with NO username → backend uses ROOT_DOWNLINE_HASH
   loadNetworkActivityData({ username: '' });
+}
+
+function applyNetworkActivityTableSearch() {
+  const input = document.getElementById('network-activity-table-search');
+  const term = input ? input.value.trim().toLowerCase() : '';
+
+  if (!term) {
+    networkActivityVisibleRows = networkActivityAllRows.slice();
+  } else {
+    networkActivityVisibleRows = networkActivityAllRows.filter((row) =>
+      networkActivityColumns.some((col) => {
+        const value = row[col.key];
+        return value && String(value).toLowerCase().includes(term);
+      })
+    );
+  }
+
+  renderNetworkActivityTable(networkActivityVisibleRows);
+  const summaryEl = document.getElementById('network-activity-summary');
+  if (summaryEl) {
+    renderNetworkActivitySummary(networkActivityVisibleRows, summaryEl);
+  }
 }
 
 window.loadNetworkActivityData = loadNetworkActivityData;

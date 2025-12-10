@@ -13,14 +13,20 @@
              aria-label="Username for upline lookup" />
     </label>
     <button type="submit">Apply</button>
-    <input
-      id="user-upline-table-search"
-      type="text"
-      class="toolbar-search"
-      placeholder="Search in table..."
-      aria-label="Search in loaded user upline"
-    />
   </form>
+
+  <div class="table-toolbar">
+    <input
+      type="text"
+      id="user-upline-table-search"
+      class="table-search-input"
+      placeholder="Search within current results…"
+      aria-label="Search in table"
+    />
+    <button type="button" id="user-upline-export" class="table-export-button">
+      Export CSV
+    </button>
+  </div>
 
   <div id="user-upline-summary" class="page-summary"></div>
   <div id="user-upline-table-container" class="table-container"></div>

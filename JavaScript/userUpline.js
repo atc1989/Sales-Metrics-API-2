@@ -2,8 +2,16 @@
 const USER_UPLINE_API_USER = 'ggitteam';
 const USER_UPLINE_ENDPOINT = '/api/userUpline';
 
-// cache of the last loaded rows
-let userUplineRowsCache = [];
+const userUplineColumns = [
+  { key: 'lvl',       label: 'LEVEL' },
+  { key: 'idno',      label: 'ID NO' },
+  { key: 'user_name', label: 'USER NAME' },
+  { key: 'user',      label: 'USER' },
+  { key: 'placement', label: 'PLACEMENT' }
+];
+
+let userUplineAllRows = [];
+let userUplineVisibleRows = [];
 
 function getUserUplineApiKey() {
   return generateApiKey(); // same helper as other pages
@@ -33,15 +41,8 @@ function renderUserUplineSummary(rows, summaryEl) {
 // TABLE WRAPPER (uses shared renderTable from common.js)
 function renderUserUplineTable(rows) {
   const tableContainer = document.getElementById('user-upline-table-container');
-  const columns = [
-    { key: 'lvl',       label: 'LEVEL' },
-    { key: 'idno',      label: 'ID NO' },
-    { key: 'user_name', label: 'USER NAME' },
-    { key: 'user',      label: 'USER' },
-    { key: 'placement', label: 'PLACEMENT' }
-  ];
 
-  renderTable(tableContainer, columns, rows);
+  renderTable(tableContainer, userUplineColumns, rows);
 }
 
 /**
@@ -77,9 +78,10 @@ async function loadUserUplineData({ username }) {
       console.warn('No user upline data found for username:', username || '(root)');
     }
 
-    userUplineRowsCache = rows;
-    renderUserUplineSummary(rows, summaryEl);
-    renderUserUplineTable(rows);
+    userUplineAllRows = rows;
+    userUplineVisibleRows = rows;
+    renderUserUplineSummary(userUplineVisibleRows, summaryEl);
+    renderUserUplineTable(userUplineVisibleRows);
     return rows;
   } catch (error) {
     console.error('Failed to load user upline data', error);
@@ -98,6 +100,7 @@ function initUserUplinePage() {
   const usernameInput = document.getElementById('user-upline-username');
   const filterForm    = document.getElementById('user-upline-filter-form');
   const tableSearchInput = document.getElementById('user-upline-table-search');
+  const exportBtn = document.getElementById('user-upline-export');
 
   if (filterForm) {
     filterForm.addEventListener('submit', (event) => {
@@ -108,23 +111,36 @@ function initUserUplinePage() {
   }
 
   if (tableSearchInput) {
-    tableSearchInput.addEventListener('input', () => {
-      const term = tableSearchInput.value.trim().toLowerCase();
+    tableSearchInput.addEventListener('input', applyUserUplineTableSearch);
+  }
 
-      const rows = !term
-        ? userUplineRowsCache
-        : userUplineRowsCache.filter((row) =>
-            ['lvl', 'user_name', 'user', 'placement'].some((key) =>
-              String(row[key] ?? '').toLowerCase().includes(term)
-            )
-          );
-
-      renderUserUplineTable(rows);
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      exportRowsToCsv(userUplineColumns, userUplineVisibleRows, 'user-upline.csv');
     });
   }
 
   // Initial load with NO username → backend uses ROOT_UPLINE_HASH
   loadUserUplineData({ username: '' });
+}
+
+function applyUserUplineTableSearch() {
+  const summaryEl = document.getElementById('user-upline-summary');
+  const input = document.getElementById('user-upline-table-search');
+  if (!input) return;
+
+  const term = input.value.trim().toLowerCase();
+
+  if (!term) {
+    userUplineVisibleRows = userUplineAllRows.slice();
+  } else {
+    userUplineVisibleRows = userUplineAllRows.filter((row) =>
+      userUplineColumns.some((col) => String(row[col.key] ?? '').toLowerCase().includes(term))
+    );
+  }
+
+  renderUserUplineSummary(userUplineVisibleRows, summaryEl);
+  renderUserUplineTable(userUplineVisibleRows);
 }
 
 

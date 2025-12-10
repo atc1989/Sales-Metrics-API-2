@@ -14,14 +14,20 @@
       <input id="sales-to" type="date" aria-label="To date" required />
     </label>
     <button type="submit">Apply</button>
-    <input
-      id="sales-table-search"
-      type="text"
-      class="toolbar-search"
-      placeholder="Search in table..."
-      aria-label="Search in loaded sales"
-    />
   </form>
+
+  <div class="table-toolbar">
+    <input
+      type="text"
+      id="sales-table-search"
+      class="table-search-input"
+      placeholder="Search within current results…"
+      aria-label="Search in table"
+    />
+    <button type="button" id="sales-export" class="table-export-button">
+      Export CSV
+    </button>
+  </div>
 
   <div id="sales-summary" class="card-grid"></div>
   <div id="sales-table-container" class="table-wrapper"></div>

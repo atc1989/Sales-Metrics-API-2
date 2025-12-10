@@ -2,7 +2,17 @@
 const PERSONAL_ACCOUNTS_API_USER = 'ggitteam';
 const PERSONAL_ACCOUNTS_ENDPOINT = '/api/personalAccounts';
 
-let personalAccountsRowsCache = [];
+const personalAccountsColumns = [
+  { key: 'idno',         label: 'ID NO' },
+  { key: 'registered',   label: 'REGISTERED' },
+  { key: 'user_name',    label: 'USER NAME' },
+  { key: 'user',         label: 'USER' },
+  { key: 'account_type', label: 'ACCOUNT TYPE' },
+  { key: 'payment',      label: 'PAYMENT' }
+];
+
+let personalAccountsAllRows = [];
+let personalAccountsVisibleRows = [];
 
 function getPersonalAccountsApiKey() {
   return generateApiKey(); // same helper as other pages
@@ -32,16 +42,8 @@ function renderPersonalAccountsSummary(rows, summaryEl) {
 // TABLE (uses shared renderTable from common.js)
 function renderPersonalAccountsTable(rows) {
   const tableContainer = document.getElementById('personal-accounts-table-container');
-  const columns = [
-    { key: 'idno',         label: 'ID NO' },
-    { key: 'registered',   label: 'REGISTERED' },
-    { key: 'user_name',    label: 'USER NAME' },
-    { key: 'user',         label: 'USER' },
-    { key: 'account_type', label: 'ACCOUNT TYPE' },
-    { key: 'payment',      label: 'PAYMENT' }
-  ];
 
-  renderTable(tableContainer, columns, rows);
+  renderTable(tableContainer, personalAccountsColumns, rows);
 }
 
 // DATA LOADING – always call the API (like your "proper" user upline)
@@ -78,9 +80,10 @@ async function loadPersonalAccountsData({ username }) {
       console.warn('No personal accounts data found for username:', username || '(root)');
     }
 
-    personalAccountsRowsCache = rows;
-    renderPersonalAccountsSummary(rows, summaryEl);
-    renderPersonalAccountsTable(rows);
+    personalAccountsAllRows = rows;
+    personalAccountsVisibleRows = rows;
+    renderPersonalAccountsSummary(personalAccountsVisibleRows, summaryEl);
+    renderPersonalAccountsTable(personalAccountsVisibleRows);
     return rows;
   } catch (error) {
     console.error('Failed to load personal accounts data', error);
@@ -108,26 +111,44 @@ function initPersonalAccountsPage() {
   }
 
   if (tableSearchInput) {
-    tableSearchInput.addEventListener('input', () => {
-      const term = tableSearchInput.value.trim().toLowerCase();
+    tableSearchInput.addEventListener('input', applyPersonalAccountsTableSearch);
+  }
 
-      const rows = !term
-        ? personalAccountsRowsCache
-        : personalAccountsRowsCache.filter((row) =>
-            [
-              'user_name',
-              'user',
-              'account_type',
-              'payment'
-            ].some((key) => String(row[key] ?? '').toLowerCase().includes(term))
-          );
-
-      renderPersonalAccountsTable(rows);
+  const exportBtn = document.getElementById('personal-accounts-export');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      window.exportRowsToCsv(
+        personalAccountsColumns,
+        personalAccountsVisibleRows,
+        'personal-accounts.csv'
+      );
     });
   }
 
   // Initial load with NO username → backend uses ROOT_DOWNLINE_HASH
   loadPersonalAccountsData({ username: '' });
+}
+
+function applyPersonalAccountsTableSearch() {
+  const input = document.getElementById('personal-accounts-table-search');
+  const term = input ? input.value.trim().toLowerCase() : '';
+
+  if (!term) {
+    personalAccountsVisibleRows = personalAccountsAllRows.slice();
+  } else {
+    personalAccountsVisibleRows = personalAccountsAllRows.filter((row) =>
+      personalAccountsColumns.some((col) => {
+        const value = row[col.key];
+        return value && String(value).toLowerCase().includes(term);
+      })
+    );
+  }
+
+  renderPersonalAccountsTable(personalAccountsVisibleRows);
+  const summaryEl = document.getElementById('personal-accounts-summary');
+  if (summaryEl) {
+    renderPersonalAccountsSummary(personalAccountsVisibleRows, summaryEl);
+  }
 }
 
 window.loadPersonalAccountsData = loadPersonalAccountsData;
