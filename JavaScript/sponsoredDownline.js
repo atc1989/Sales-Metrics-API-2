@@ -124,6 +124,7 @@ function initSponsoredDownlinePage() {
         sponsoredDownlineVisibleRows,
         'sponsored-downline.csv'
       );
+      showExportSuccess('csv');
     });
   }
 
@@ -134,6 +135,7 @@ function initSponsoredDownlinePage() {
         sponsoredDownlineVisibleRows,
         'sponsored-downline.xlsx'
       );
+      showExportSuccess('xlsx');
     });
   }
 

@@ -124,6 +124,7 @@ function initPersonalAccountsPage() {
         personalAccountsVisibleRows,
         'personal-accounts.csv'
       );
+      showExportSuccess('csv');
     });
   }
 
@@ -134,6 +135,7 @@ function initPersonalAccountsPage() {
         personalAccountsVisibleRows,
         'personal-accounts.xlsx'
       );
+      showExportSuccess('xlsx');
     });
   }
 

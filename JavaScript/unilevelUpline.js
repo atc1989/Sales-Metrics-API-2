@@ -124,6 +124,7 @@ function initUnilevelUplinePage() {
         unilevelUplineVisibleRows,
         'unilevel-upline.csv'
       );
+      showExportSuccess('csv');
     });
   }
 
@@ -134,6 +135,7 @@ function initUnilevelUplinePage() {
         unilevelUplineVisibleRows,
         'unilevel-upline.xlsx'
       );
+      showExportSuccess('xlsx');
     });
   }
 

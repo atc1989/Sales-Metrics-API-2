@@ -141,12 +141,14 @@ function initSalesPage() {
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(salesColumns, salesVisibleRows, 'sales.csv');
+      showExportSuccess('csv');
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
       exportRowsToXlsx(salesColumns, salesVisibleRows, 'sales.xlsx');
+      showExportSuccess('xlsx');
     });
   }
 

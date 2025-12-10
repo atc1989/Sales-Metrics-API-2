@@ -121,6 +121,7 @@ function initNetworkActivityPage() {
         networkActivityVisibleRows,
         'network-activity.csv'
       );
+      showExportSuccess('csv');
     });
   }
 
@@ -131,6 +132,7 @@ function initNetworkActivityPage() {
         networkActivityVisibleRows,
         'network-activity.xlsx'
       );
+      showExportSuccess('xlsx');
     });
   }
 

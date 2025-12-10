@@ -122,12 +122,14 @@ function initBinaryDownlinePage() {
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(binaryDownlineColumns, binaryDownlineVisibleRows, 'binary-downline.csv');
+      showExportSuccess('csv');
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
       exportRowsToXlsx(binaryDownlineColumns, binaryDownlineVisibleRows, 'binary-downline.xlsx');
+      showExportSuccess('xlsx');
     });
   }
 

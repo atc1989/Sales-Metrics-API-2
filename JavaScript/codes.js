@@ -134,12 +134,14 @@ function initCodesPage() {
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(codesColumns, codesVisibleRows, 'codes.csv');
+      showExportSuccess('csv');
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
       exportRowsToXlsx(codesColumns, codesVisibleRows, 'codes.xlsx');
+      showExportSuccess('xlsx');
     });
   }
 

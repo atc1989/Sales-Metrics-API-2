@@ -169,12 +169,14 @@ function initUsersPage() {
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(userColumns, usersVisibleRows, 'users.csv');
+      showExportSuccess('csv');
     });
   }
 
   if (exportXlsxBtn) {
     exportXlsxBtn.addEventListener('click', () => {
       exportRowsToXlsx(userColumns, usersVisibleRows, 'users.xlsx');
+      showExportSuccess('xlsx');
     });
   }
 

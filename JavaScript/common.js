@@ -140,6 +140,32 @@ function exportRowsToXlsx(columns, rows, filename) {
 
 window.exportRowsToXlsx = exportRowsToXlsx;
 
+// ---- EXPORT SUCCESS ALERT (shared) ----
+function showExportSuccess(type) {
+  if (typeof Swal === 'undefined') {
+    console.warn('SweetAlert2 (Swal) is not loaded.');
+    return;
+  }
+
+  let text = '';
+  if (type === 'csv') {
+    text = 'CSV file downloaded.';
+  } else if (type === 'xlsx') {
+    text = 'Excel file downloaded.';
+  } else {
+    text = 'File downloaded.';
+  }
+
+  Swal.fire({
+    title: 'Export complete',
+    text,
+    icon: 'success',
+    confirmButtonText: 'OK',
+  });
+}
+
+window.showExportSuccess = showExportSuccess;
+
 // ---- PDF EXPORTER (shared) ----
 function exportTableToPdf(columns, rows, title) {
   if (!Array.isArray(rows) || rows.length === 0) {

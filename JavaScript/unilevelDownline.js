@@ -124,6 +124,7 @@ function initUnilevelDownlinePage() {
         unilevelDownlineVisibleRows,
         'unilevel-downline.csv'
       );
+      showExportSuccess('csv');
     });
   }
 
@@ -134,6 +135,7 @@ function initUnilevelDownlinePage() {
         unilevelDownlineVisibleRows,
         'unilevel-downline.xlsx'
       );
+      showExportSuccess('xlsx');
     });
   }
 
