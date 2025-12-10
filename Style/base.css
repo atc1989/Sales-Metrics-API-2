@@ -109,9 +109,10 @@ body {
 #app-content {
   flex: 1;
   padding: 32px;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%; /* Ensures proper width calculation */
+  min-width: 0; /* Prevents overflow in flexible layouts */
 }
 
 .page-header {
@@ -136,7 +137,7 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
   margin-top: 16px;
-  margin-bottom: 24px; /* add bottom spacing before the table */
+  margin-bottom: 16px; /* add bottom spacing before the table */
 }
 
 .card {
@@ -236,9 +237,11 @@ button:active {
 /* --- Table Styles --- */
 .table-wrapper {
   width: 100%;
+  max-width: 100%;
   margin-top: 16px;
   overflow-x: auto; /* Allows horizontal scrolling on small screens */
-  overflow-y: visible;
+  overflow-y: auto;
+  max-height: 60vh;
   -webkit-overflow-scrolling: touch;
 }
 
