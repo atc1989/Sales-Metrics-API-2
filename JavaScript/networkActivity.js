@@ -98,6 +98,9 @@ function initNetworkActivityPage() {
   const usernameInput = document.getElementById('network-activity-username');
   const filterForm    = document.getElementById('network-activity-filter-form');
   const tableSearchInput = document.getElementById('network-activity-table-search');
+  const exportCsvBtn = document.getElementById('network-activity-export-csv');
+  const exportXlsxBtn = document.getElementById('network-activity-export-xlsx');
+  const exportPdfBtn = document.getElementById('network-activity-export-pdf');
 
   if (filterForm) {
     filterForm.addEventListener('submit', (event) => {
@@ -111,13 +114,32 @@ function initNetworkActivityPage() {
     tableSearchInput.addEventListener('input', applyNetworkActivityTableSearch);
   }
 
-  const exportBtn = document.getElementById('network-activity-export');
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       window.exportRowsToCsv(
         networkActivityColumns,
         networkActivityVisibleRows,
         'network-activity.csv'
+      );
+    });
+  }
+
+  if (exportXlsxBtn) {
+    exportXlsxBtn.addEventListener('click', () => {
+      window.exportRowsToXlsx(
+        networkActivityColumns,
+        networkActivityVisibleRows,
+        'network-activity.xlsx'
+      );
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      window.exportTableToPdf(
+        networkActivityColumns,
+        networkActivityVisibleRows,
+        'Network Activity'
       );
     });
   }

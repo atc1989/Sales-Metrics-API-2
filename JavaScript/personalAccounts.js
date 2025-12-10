@@ -101,6 +101,9 @@ function initPersonalAccountsPage() {
   const usernameInput = document.getElementById('personal-accounts-username');
   const filterForm    = document.getElementById('personal-accounts-filter-form');
   const tableSearchInput = document.getElementById('personal-accounts-table-search');
+  const exportCsvBtn = document.getElementById('personal-accounts-export-csv');
+  const exportXlsxBtn = document.getElementById('personal-accounts-export-xlsx');
+  const exportPdfBtn = document.getElementById('personal-accounts-export-pdf');
 
   if (filterForm) {
     filterForm.addEventListener('submit', (event) => {
@@ -114,13 +117,32 @@ function initPersonalAccountsPage() {
     tableSearchInput.addEventListener('input', applyPersonalAccountsTableSearch);
   }
 
-  const exportBtn = document.getElementById('personal-accounts-export');
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       window.exportRowsToCsv(
         personalAccountsColumns,
         personalAccountsVisibleRows,
         'personal-accounts.csv'
+      );
+    });
+  }
+
+  if (exportXlsxBtn) {
+    exportXlsxBtn.addEventListener('click', () => {
+      window.exportRowsToXlsx(
+        personalAccountsColumns,
+        personalAccountsVisibleRows,
+        'personal-accounts.xlsx'
+      );
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      window.exportTableToPdf(
+        personalAccountsColumns,
+        personalAccountsVisibleRows,
+        'Personal Accounts'
       );
     });
   }

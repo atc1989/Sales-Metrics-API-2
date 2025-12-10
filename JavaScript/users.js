@@ -140,7 +140,9 @@ function initUsersPage() {
   const toInput     = document.getElementById('users-to');
   const filterForm  = document.getElementById('users-filter-form');
   const tableSearch = document.getElementById('users-table-search');
-  const exportBtn   = document.getElementById('users-export');
+  const exportCsvBtn  = document.getElementById('users-export-csv');
+  const exportXlsxBtn = document.getElementById('users-export-xlsx');
+  const exportPdfBtn  = document.getElementById('users-export-pdf');
 
   const { from, to } = getDefaultDateRange();
   if (fromInput && !fromInput.value) fromInput.value = from;
@@ -164,9 +166,21 @@ function initUsersPage() {
     tableSearch.addEventListener('input', applyUsersTableSearch);
   }
 
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(userColumns, usersVisibleRows, 'users.csv');
+    });
+  }
+
+  if (exportXlsxBtn) {
+    exportXlsxBtn.addEventListener('click', () => {
+      exportRowsToXlsx(userColumns, usersVisibleRows, 'users.xlsx');
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      exportTableToPdf(userColumns, usersVisibleRows, 'Users');
     });
   }
 

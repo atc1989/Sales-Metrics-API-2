@@ -104,7 +104,9 @@ function initCodesPage() {
   const toInput     = document.getElementById('codes-to');
   const filterForm  = document.getElementById('codes-filter-form');
   const tableSearchInput = document.getElementById('codes-table-search');
-  const exportBtn = document.getElementById('codes-export');
+  const exportCsvBtn = document.getElementById('codes-export-csv');
+  const exportXlsxBtn = document.getElementById('codes-export-xlsx');
+  const exportPdfBtn = document.getElementById('codes-export-pdf');
 
   const { from, to } = getDefaultDateRange();
   if (fromInput && !fromInput.value) fromInput.value = from;
@@ -129,9 +131,21 @@ function initCodesPage() {
     tableSearchInput.addEventListener('input', applyCodesTableSearch);
   }
 
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(codesColumns, codesVisibleRows, 'codes.csv');
+    });
+  }
+
+  if (exportXlsxBtn) {
+    exportXlsxBtn.addEventListener('click', () => {
+      exportRowsToXlsx(codesColumns, codesVisibleRows, 'codes.xlsx');
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      exportTableToPdf(codesColumns, codesVisibleRows, 'Codes');
     });
   }
 

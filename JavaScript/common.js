@@ -106,3 +106,111 @@ function exportRowsToCsv(columns, rows, filename = 'export.csv') {
 }
 
 window.exportRowsToCsv = exportRowsToCsv;
+
+// ---- EXCEL EXPORTER (shared) ----
+function exportRowsToXlsx(columns, rows, filename) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    alert('No data to export.');
+    return;
+  }
+
+  if (typeof XLSX === 'undefined') {
+    console.error('XLSX library is not loaded.');
+    alert('Excel export is unavailable (XLSX library not loaded).');
+    return;
+  }
+
+  const exportData = rows.map((row) => {
+    const obj = {};
+    columns.forEach((col) => {
+      const raw = row[col.key] ?? '';
+      obj[col.label] = raw;
+    });
+    return obj;
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+  const safeName = filename && filename.trim() ? filename : 'export.xlsx';
+
+  XLSX.writeFile(workbook, safeName);
+}
+
+window.exportRowsToXlsx = exportRowsToXlsx;
+
+// ---- PDF EXPORTER (shared) ----
+function exportTableToPdf(columns, rows, title) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    alert('No data to export.');
+    return;
+  }
+
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('Pop-up blocked. Please allow pop-ups for this site.');
+    return;
+  }
+
+  const docTitle = title || 'Table Export';
+
+  const style = `
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        padding: 16px;
+      }
+      h1 {
+        font-size: 18px;
+        margin-bottom: 12px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12px;
+      }
+      th, td {
+        border: 1px solid #ccc;
+        padding: 4px 8px;
+        text-align: left;
+      }
+      th {
+        background: #f2f2f2;
+      }
+      @media print {
+        body { margin: 0; }
+      }
+    </style>
+  `;
+
+  let html = `<html><head><title>${docTitle}</title>${style}</head><body>`;
+  html += `<h1>${docTitle}</h1>`;
+  html += '<table><thead><tr>';
+
+  columns.forEach((col) => {
+    html += `<th>${col.label}</th>`;
+  });
+
+  html += '</tr></thead><tbody>';
+
+  rows.forEach((row) => {
+    html += '<tr>';
+    columns.forEach((col) => {
+      const value = row[col.key] ?? '';
+      html += `<td>${String(value)}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></body></html>';
+
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+
+  win.focus();
+  win.print();
+}
+
+window.exportTableToPdf = exportTableToPdf;

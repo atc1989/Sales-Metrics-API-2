@@ -112,7 +112,9 @@ function initSalesPage() {
   const toInput   = document.getElementById('sales-to');
   const filterForm  = document.getElementById('sales-filter-form');
   const tableSearchInput = document.getElementById('sales-table-search');
-  const exportBtn = document.getElementById('sales-export');
+  const exportCsvBtn = document.getElementById('sales-export-csv');
+  const exportXlsxBtn = document.getElementById('sales-export-xlsx');
+  const exportPdfBtn = document.getElementById('sales-export-pdf');
 
   const { from, to } = getDefaultDateRange();
   if (fromInput && !fromInput.value) fromInput.value = from;
@@ -136,9 +138,21 @@ function initSalesPage() {
     tableSearchInput.addEventListener('input', applySalesTableSearch);
   }
 
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(salesColumns, salesVisibleRows, 'sales.csv');
+    });
+  }
+
+  if (exportXlsxBtn) {
+    exportXlsxBtn.addEventListener('click', () => {
+      exportRowsToXlsx(salesColumns, salesVisibleRows, 'sales.xlsx');
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      exportTableToPdf(salesColumns, salesVisibleRows, 'Sales');
     });
   }
 

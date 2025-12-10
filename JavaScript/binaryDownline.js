@@ -103,7 +103,9 @@ function initBinaryDownlinePage() {
   const usernameInput = document.getElementById('binary-downline-username');
   const filterForm    = document.getElementById('binary-downline-filter-form');
   const tableSearchInput = document.getElementById('binary-downline-table-search');
-  const exportBtn = document.getElementById('binary-downline-export');
+  const exportCsvBtn = document.getElementById('binary-downline-export-csv');
+  const exportXlsxBtn = document.getElementById('binary-downline-export-xlsx');
+  const exportPdfBtn = document.getElementById('binary-downline-export-pdf');
 
   if (filterForm) {
     filterForm.addEventListener('submit', (event) => {
@@ -117,9 +119,21 @@ function initBinaryDownlinePage() {
     tableSearchInput.addEventListener('input', applyBinaryDownlineTableSearch);
   }
 
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(binaryDownlineColumns, binaryDownlineVisibleRows, 'binary-downline.csv');
+    });
+  }
+
+  if (exportXlsxBtn) {
+    exportXlsxBtn.addEventListener('click', () => {
+      exportRowsToXlsx(binaryDownlineColumns, binaryDownlineVisibleRows, 'binary-downline.xlsx');
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      exportTableToPdf(binaryDownlineColumns, binaryDownlineVisibleRows, 'Binary Downline');
     });
   }
 

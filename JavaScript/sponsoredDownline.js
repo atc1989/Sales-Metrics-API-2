@@ -101,7 +101,9 @@ function initSponsoredDownlinePage() {
   const usernameInput = document.getElementById('sponsored-downline-username');
   const filterForm    = document.getElementById('sponsored-downline-filter-form');
   const tableSearchInput = document.getElementById('sponsored-downline-table-search');
-  const exportBtn = document.getElementById('sponsored-downline-export');
+  const exportCsvBtn = document.getElementById('sponsored-downline-export-csv');
+  const exportXlsxBtn = document.getElementById('sponsored-downline-export-xlsx');
+  const exportPdfBtn = document.getElementById('sponsored-downline-export-pdf');
 
   if (filterForm) {
     filterForm.addEventListener('submit', (event) => {
@@ -115,12 +117,32 @@ function initSponsoredDownlinePage() {
     tableSearchInput.addEventListener('input', applySponsoredDownlineTableSearch);
   }
 
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       exportRowsToCsv(
         sponsoredDownlineColumns,
         sponsoredDownlineVisibleRows,
         'sponsored-downline.csv'
+      );
+    });
+  }
+
+  if (exportXlsxBtn) {
+    exportXlsxBtn.addEventListener('click', () => {
+      exportRowsToXlsx(
+        sponsoredDownlineColumns,
+        sponsoredDownlineVisibleRows,
+        'sponsored-downline.xlsx'
+      );
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      exportTableToPdf(
+        sponsoredDownlineColumns,
+        sponsoredDownlineVisibleRows,
+        'Sponsored Downline'
       );
     });
   }

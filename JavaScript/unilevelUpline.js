@@ -101,6 +101,9 @@ function initUnilevelUplinePage() {
   const usernameInput = document.getElementById('unilevel-upline-username');
   const filterForm    = document.getElementById('unilevel-upline-filter-form');
   const tableSearchInput = document.getElementById('unilevel-upline-table-search');
+  const exportCsvBtn = document.getElementById('unilevel-upline-export-csv');
+  const exportXlsxBtn = document.getElementById('unilevel-upline-export-xlsx');
+  const exportPdfBtn = document.getElementById('unilevel-upline-export-pdf');
 
   if (filterForm) {
     filterForm.addEventListener('submit', (event) => {
@@ -114,13 +117,32 @@ function initUnilevelUplinePage() {
     tableSearchInput.addEventListener('input', applyUnilevelUplineTableSearch);
   }
 
-  const exportBtn = document.getElementById('unilevel-upline-export');
-  if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', () => {
       window.exportRowsToCsv(
         unilevelUplineColumns,
         unilevelUplineVisibleRows,
         'unilevel-upline.csv'
+      );
+    });
+  }
+
+  if (exportXlsxBtn) {
+    exportXlsxBtn.addEventListener('click', () => {
+      window.exportRowsToXlsx(
+        unilevelUplineColumns,
+        unilevelUplineVisibleRows,
+        'unilevel-upline.xlsx'
+      );
+    });
+  }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      window.exportTableToPdf(
+        unilevelUplineColumns,
+        unilevelUplineVisibleRows,
+        'Unilevel Upline'
       );
     });
   }
