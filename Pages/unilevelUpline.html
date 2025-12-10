@@ -1,0 +1,70 @@
+<section id="unilevel-upline-section" class="page">
+  <header class="page-header">
+    <h1 class="page-title">Unilevel Upline</h1>
+    <p class="page-subtitle">This page will list Unilevel Upline data from the API.</p>
+  </header>
+
+  <form id="unilevel-upline-filter-form" class="toolbar">
+    <label>
+      Username
+      <input type="text"
+             id="unilevel-upline-username"
+             placeholder="Enter username (e.g. Royalty01)"
+             aria-label="Username for upline lookup" />
+    </label>
+    <button type="submit">Apply</button>
+  </form>
+
+  <div class="table-toolbar">
+    <div class="table-toolbar-left">
+      <label class="table-search-label">
+        Table search
+        <div class="table-search-row">
+          <input
+            type="text"
+            id="unilevel-upline-table-search"
+            class="table-search-input"
+            placeholder="Search in current results…"
+            aria-label="Search in Unilevel Upline table"
+          />
+          <button
+            type="button"
+            id="unilevel-upline-table-search-clear"
+            class="table-search-clear-btn"
+            disabled
+          >
+            Clear
+          </button>
+        </div>
+      </label>
+    </div>
+    <div class="table-toolbar-right">
+      <button
+        type="button"
+        id="unilevel-upline-export-csv"
+        class="export-btn"
+      >
+        CSV
+      </button>
+      <button
+        type="button"
+        id="unilevel-upline-export-xlsx"
+        class="export-btn"
+      >
+        Excel
+      </button>
+      <button
+        type="button"
+        id="unilevel-upline-export-pdf"
+        class="export-btn"
+      >
+        PDF
+      </button>
+    </div>
+  </div>
+
+  <div id="unilevel-upline-summary" class="card-grid"></div>
+  <div class="table-wrapper">
+    <div id="unilevel-upline-table-container" class="table-container"></div>
+  </div>
+</section>

@@ -1,0 +1,58 @@
+<section id="sponsored-downline-section" class="page">
+  <header class="page-header">
+    <h1 class="page-title">Sponsored Downline</h1>
+    <p class="page-subtitle">This page will list sponsored downline data from the API.</p>
+  </header>
+
+  <form id="sponsored-downline-filter-form" class="toolbar">
+    <label>
+      Username
+      <input type="text"
+             id="sponsored-downline-username"
+             placeholder="Enter username (e.g. Royalty01)"
+             aria-label="Username for downline lookup" />
+    </label>
+    <button type="submit">Apply</button>
+  </form>
+
+  <div class="table-toolbar">
+    <div class="table-toolbar-left">
+      <label class="table-search-label">
+        Table search
+        <div class="table-search-row">
+          <input
+            type="text"
+            id="sponsored-downline-table-search"
+            class="table-search-input"
+            placeholder="Search in current results…"
+            aria-label="Search in table"
+          />
+          <button
+            type="button"
+            id="sponsored-downline-table-search-clear"
+            class="table-search-clear-btn"
+            disabled
+          >
+            Clear
+          </button>
+        </div>
+      </label>
+    </div>
+    <div class="table-toolbar-right">
+      <button type="button" id="sponsored-downline-export-csv" class="export-btn">
+        CSV
+      </button>
+      <button type="button" id="sponsored-downline-export-xlsx" class="export-btn">
+        Excel
+      </button>
+      <button type="button" id="sponsored-downline-export-pdf" class="export-btn">
+        PDF
+      </button>
+    </div>
+  </div>
+
+  <div id="sponsored-downline-summary" class="card-grid"></div>
+  <div class="table-wrapper">
+    <div id="sponsored-downline-table-container" class="table-container"></div>
+  </div>
+</section>

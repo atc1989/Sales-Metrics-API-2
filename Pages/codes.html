@@ -1,0 +1,54 @@
+<section id="codes-page" class="page">
+  <header class="page-header">
+    <h1 class="page-title">Codes</h1>
+    <p class="page-subtitle">This page will list code SKUs and related metadata.</p>
+  </header>
+
+  <form id="codes-filter-form" class="toolbar">
+    <label>
+      From
+      <input id="codes-from" type="date" aria-label="From date" required />
+    </label>
+    <label>
+      To
+      <input id="codes-to" type="date" aria-label="To date" required />
+    </label>
+    <button type="submit">Apply</button>
+  </form>
+
+  <div class="table-toolbar">
+    <div class="table-toolbar-left">
+      <label class="table-search-label">
+        Table search
+        <div class="table-search-row">
+          <input
+            type="text"
+            id="codes-table-search"
+            class="table-search-input"
+            placeholder="Search in current results…"
+            aria-label="Search in table"
+          />
+          <button
+            type="button"
+            id="codes-table-search-clear"
+            class="table-search-clear-btn"
+            disabled
+          >
+            Clear
+          </button>
+        </div>
+      </label>
+    </div>
+    <div class="table-toolbar-right">
+      <button type="button" id="codes-export-csv" class="export-btn">CSV</button>
+      <button type="button" id="codes-export-xlsx" class="export-btn">Excel</button>
+      <button type="button" id="codes-export-pdf" class="export-btn">PDF</button>
+    </div>
+  </div>
+
+  <div id="codes-summary" class="card-grid"></div>
+
+  <div class="table-wrapper">
+    <div id="codes-table-container" class="table-container"></div>
+  </div>
+</section>
