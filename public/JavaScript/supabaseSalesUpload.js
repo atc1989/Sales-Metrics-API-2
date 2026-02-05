@@ -37,6 +37,12 @@ let supabaseBaseRows = [];
 let supabaseItemsByRowId = new Map();
 let currentMode = 'supabase';
 let currentFilename = '';
+const filterState = {
+  allRows: [],
+  searchTerm: '',
+  warningsOnly: false,
+  visibleRows: []
+};
 
 function initSupabaseSalesUpload() {
   const tableContainer = document.getElementById('tableContainer');
@@ -64,6 +70,7 @@ function initSupabaseSalesUpload() {
   const endDate = document.getElementById('endDate');
   const tableSearch = document.getElementById('tableSearch');
   const clearSearch = document.getElementById('clearSearch');
+  const warningsToggle = document.getElementById('warningsOnlyToggle');
   const exportCsvBtn = document.getElementById('exportCsv');
   const exportXlsxBtn = document.getElementById('exportXlsx');
   const exportPdfBtn = document.getElementById('exportPdf');
@@ -122,7 +129,10 @@ function initSupabaseSalesUpload() {
   }
 
   if (tableSearch) {
-    tableSearch.addEventListener('input', () => applySearchFilter());
+    tableSearch.addEventListener('input', () => {
+      filterState.searchTerm = tableSearch.value.trim().toLowerCase();
+      applyFiltersAndRender();
+    });
   }
 
   if (clearSearch) {
@@ -130,7 +140,15 @@ function initSupabaseSalesUpload() {
       event.preventDefault();
       if (tableSearch) tableSearch.value = '';
       clearSearch.disabled = true;
-      applySearchFilter();
+      filterState.searchTerm = '';
+      applyFiltersAndRender();
+    });
+  }
+
+  if (warningsToggle) {
+    warningsToggle.addEventListener('change', () => {
+      filterState.warningsOnly = warningsToggle.checked;
+      applyFiltersAndRender();
     });
   }
 
@@ -289,7 +307,9 @@ function parseRowByIndex(row, rowNumber, sheetName) {
     items_raw: itemsRaw,
     amount,
     items: parsedItems.items,
-    warnings: parsedItems.warnings
+    warnings: parsedItems.warnings,
+    parse_warnings: parsedItems.warnings,
+    has_warning: parsedItems.warnings.length > 0
   };
 }
 
@@ -393,31 +413,8 @@ function parseItems(raw, rowNumber, sheetName) {
 function applyPreviewFilterAndRender() {
   const filtered = filterRowsByDate(parsedRows);
   previewBaseRows = filtered;
-  parsedVisibleRows = filtered.slice();
-  applySearchFilter();
-}
-
-function applySearchFilter() {
-  const input = document.getElementById('tableSearch');
-  const clearBtn = document.getElementById('clearSearch');
-  const term = input ? input.value.trim().toLowerCase() : '';
-
-  if (clearBtn) clearBtn.disabled = !term;
-
-  const baseRows = getBaseRows();
-  const filtered = term ? baseRows.filter((row) =>
-    salesUploadColumns.some((col) => String(row[col.key] ?? '').toLowerCase().includes(term))
-  ) : baseRows.slice();
-
-  if (currentMode === 'preview') {
-    parsedVisibleRows = filtered;
-  } else {
-    supabaseVisibleRows = filtered;
-  }
-
-  renderCurrentTable(filtered, currentMode);
-  const cards = computeCardsFromRows(filtered, currentMode === 'supabase' ? supabaseItemsByRowId : null);
-  renderSummaryCards(cards);
+  filterState.allRows = filtered.slice();
+  applyFiltersAndRender();
 }
 
 function getBaseRows() {
@@ -428,6 +425,39 @@ function getCurrentVisibleRows() {
   return currentMode === 'preview' ? parsedVisibleRows : supabaseVisibleRows;
 }
 
+function applyFiltersAndRender() {
+  const clearBtn = document.getElementById('clearSearch');
+  if (clearBtn) clearBtn.disabled = !filterState.searchTerm;
+
+  let filtered = filterState.allRows.slice();
+
+  if (filterState.warningsOnly) {
+    filtered = filtered.filter((row) =>
+      row.has_warning === true || (row.parse_warnings && row.parse_warnings.length > 0)
+    );
+  }
+
+  if (filterState.searchTerm) {
+    const term = filterState.searchTerm;
+    filtered = filtered.filter((row) =>
+      salesUploadColumns.some((col) => String(row[col.key] ?? '').toLowerCase().includes(term))
+    );
+  }
+
+  filterState.visibleRows = filtered;
+
+  if (currentMode === 'preview') {
+    parsedVisibleRows = filtered;
+  } else {
+    supabaseVisibleRows = filtered;
+  }
+
+  renderCurrentTable(filtered, currentMode);
+  const cards = computeCardsFromRows(filtered, currentMode === 'supabase' ? supabaseItemsByRowId : null);
+  renderSummaryCards(cards);
+  updateWarningsBadge(filterState.allRows);
+}
+
 function renderCurrentTable(rows, mode) {
   const tableContainer = document.getElementById('tableContainer');
   if (!tableContainer) return;
@@ -435,7 +465,10 @@ function renderCurrentTable(rows, mode) {
   tableContainer.innerHTML = '';
 
   if (!rows.length) {
-    tableContainer.innerHTML = '<div class="empty-state">No rows available for this view.</div>';
+    const message = filterState.warningsOnly
+      ? 'No warning rows found for the current filter.'
+      : 'No rows available for this view.';
+    tableContainer.innerHTML = `<div class="empty-state">${message}</div>`;
     return;
   }
 
@@ -472,6 +505,14 @@ function renderCurrentTable(rows, mode) {
         value = value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       }
       td.textContent = value;
+      if (col.key === 'items_raw' && row.has_warning) {
+        const warn = document.createElement('span');
+        warn.className = 'warn-pill';
+        warn.textContent = 'Warning';
+        warn.title = 'This row has parsing warnings. Click Preview Items.';
+        td.appendChild(document.createTextNode(' '));
+        td.appendChild(warn);
+      }
       tr.appendChild(td);
     });
 
@@ -738,12 +779,17 @@ async function loadSupabaseRowsByDateRange() {
   }
 
   supabaseRows = Array.isArray(data) ? data : [];
+  supabaseRows.forEach((row) => {
+    const warnings = Array.isArray(row.parse_warnings) ? row.parse_warnings : [];
+    row.parse_warnings = warnings;
+    row.has_warning = warnings.length > 0;
+  });
   supabaseItemsByRowId = await fetchItemsForRows(supabaseRows.map((row) => row.id));
   supabaseBaseRows = supabaseRows.slice();
-  supabaseVisibleRows = supabaseRows.slice();
+  filterState.allRows = supabaseBaseRows.slice();
   currentMode = 'supabase';
 
-  applySearchFilter();
+  applyFiltersAndRender();
   clearStatus();
 }
 
@@ -873,6 +919,18 @@ function closeItemsModal() {
   if (!modal) return;
   modal.classList.add('hidden');
   modal.setAttribute('aria-hidden', 'true');
+}
+
+function updateWarningsBadge(rows) {
+  const badge = document.getElementById('warningsCountBadge');
+  if (!badge) return;
+  const warningsCount = rows.reduce((sum, row) => (
+    row.has_warning === true || (row.parse_warnings && row.parse_warnings.length > 0)
+      ? sum + 1
+      : sum
+  ), 0);
+  badge.textContent = `Warnings: ${warningsCount}`;
+  badge.style.display = warningsCount > 0 ? 'inline-flex' : 'none';
 }
 
 window.initSupabaseSalesUpload = initSupabaseSalesUpload;
