@@ -1,4 +1,5 @@
 {
+  "buildCommand": "node tools/generate-config.js",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
