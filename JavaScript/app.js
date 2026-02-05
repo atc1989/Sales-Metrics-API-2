@@ -3,6 +3,7 @@ const ROUTES = {
   user: 'Pages/user.html',
   codes: 'Pages/codes.html',
   sales: 'Pages/sales.html',
+  supabaseSalesUpload: 'Pages/supabaseSalesUpload.html',
   userUpline: 'Pages/userUpline.html',
   sponsoredDownline: 'Pages/sponsoredDownline.html',
   binaryDownline: 'Pages/binaryDownline.html',
@@ -11,6 +12,10 @@ const ROUTES = {
   personalAccounts: 'Pages/personalAccounts.html',
   networkActivity: 'Pages/networkActivity.html',
   mlmSwagger: 'Pages/mlmSwagger.html'
+};
+
+const ROUTE_ALIASES = {
+  'supabase-sales-upload': 'supabaseSalesUpload'
 };
 
 function initApp() {
@@ -36,7 +41,9 @@ function handleHashChange() {
 }
 
 function navigateTo(route) {
-  const normalizedRoute = ROUTES[route] ? route : 'home';
+  const normalizedRoute = ROUTES[route]
+    ? route
+    : (ROUTE_ALIASES[route] || 'home');
   const path = ROUTES[normalizedRoute];
   setActiveLink(normalizedRoute);
   loadPage(normalizedRoute, path);
@@ -61,6 +68,10 @@ async function loadPage(route, path) {
 
     if (route === 'sales' && typeof window.initSalesPage === 'function') {
       window.initSalesPage();
+    }
+
+    if (route === 'supabaseSalesUpload' && typeof window.initSupabaseSalesUpload === 'function') {
+      window.initSupabaseSalesUpload();
     }
 
     if (route === 'codes' && typeof window.initCodesPage === 'function') {

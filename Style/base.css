@@ -164,6 +164,8 @@ body {
 
 input[type="text"],
 input[type="date"],
+input[type="file"],
+select,
 button {
   padding: 10px 12px;
   border-radius: 10px;
@@ -174,19 +176,25 @@ button {
 }
 
 input[type="text"],
-input[type="date"] {
+input[type="date"],
+input[type="file"],
+select {
   background: #fff;
   min-width: 200px;
 }
 
 /* Input states */
 input[type="text"]:hover,
-input[type="date"]:hover {
+input[type="date"]:hover,
+input[type="file"]:hover,
+select:hover {
   border-color: var(--muted);
 }
 
 input[type="text"]:focus,
-input[type="date"]:focus {
+input[type="date"]:focus,
+input[type="file"]:focus,
+select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
   outline: none;
@@ -396,6 +404,70 @@ tbody tr:hover {
   font-size: 1rem;
   font-style: italic;
   margin-top: 16px;
+}
+
+/* MODAL --------------------------------------------------------------- */
+
+.hidden {
+  display: none !important;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.modal__dialog {
+  position: relative;
+  width: min(720px, 92vw);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.2);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1;
+}
+
+.modal__header,
+.modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal__header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.modal__body {
+  max-height: 60vh;
+  overflow-y: auto;
+  display: grid;
+  gap: 12px;
+}
+
+.warn {
+  background: #fff4e5;
+  border: 1px solid #f2c97d;
+  color: #8a5b00;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
 }
 
 /* RESPONSIVE BREAKPOINTS ----------------------------------------------- */
