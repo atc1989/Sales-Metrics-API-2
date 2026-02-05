@@ -1,17 +1,17 @@
 const ROUTES = {
-  home: 'Pages/home.html',
-  user: 'Pages/user.html',
-  codes: 'Pages/codes.html',
-  sales: 'Pages/sales.html',
-  supabaseSalesUpload: 'Pages/supabaseSalesUpload.html',
-  userUpline: 'Pages/userUpline.html',
-  sponsoredDownline: 'Pages/sponsoredDownline.html',
-  binaryDownline: 'Pages/binaryDownline.html',
-  unilevelDownline: 'Pages/unilevelDownline.html',
-  unilevelUpline: 'Pages/unilevelUpline.html',
-  personalAccounts: 'Pages/personalAccounts.html',
-  networkActivity: 'Pages/networkActivity.html',
-  mlmSwagger: 'Pages/mlmSwagger.html'
+  home: '/Pages/home.html',
+  user: '/Pages/user.html',
+  codes: '/Pages/codes.html',
+  sales: '/Pages/sales.html',
+  supabaseSalesUpload: '/Pages/supabaseSalesUpload.html',
+  userUpline: '/Pages/userUpline.html',
+  sponsoredDownline: '/Pages/sponsoredDownline.html',
+  binaryDownline: '/Pages/binaryDownline.html',
+  unilevelDownline: '/Pages/unilevelDownline.html',
+  unilevelUpline: '/Pages/unilevelUpline.html',
+  personalAccounts: '/Pages/personalAccounts.html',
+  networkActivity: '/Pages/networkActivity.html',
+  mlmSwagger: '/Pages/mlmSwagger.html'
 };
 
 const ROUTE_ALIASES = {
@@ -61,7 +61,7 @@ async function loadPage(route, path) {
   try {
     const response = await fetch(path, { cache: 'no-cache' });
     if (!response.ok) {
-      throw new Error(`Failed to load page: ${response.status}`);
+      throw new Error(`Failed to load page (${path}): ${response.status}`);
     }
     const html = await response.text();
     contentEl.innerHTML = html;
@@ -116,7 +116,7 @@ async function loadPage(route, path) {
 
   } catch (error) {
     console.error(error);
-    contentEl.innerHTML = '<div class="empty-state">Sorry, we could not load that page. Please try again.</div>';
+    contentEl.innerHTML = `<div class="empty-state">Sorry, we could not load that page. Please try again. (${path})</div>`;
   }
 }
 
