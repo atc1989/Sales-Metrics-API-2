@@ -1,6 +1,7 @@
 // JavaScript/supabaseSalesUpload.js
 
 const SUPPORTED_TYPES = [
+  'BPGUARD',
   'SGGUARD',
   'Synbiotic+ MM',
   'Silver',
@@ -9,12 +10,18 @@ const SUPPORTED_TYPES = [
 ];
 
 const TYPE_CANON_MAP = {
+  'bpguard': 'BPGUARD',
   'sgguard': 'SGGUARD',
   'synbiotic+ mm': 'Synbiotic+ MM',
   'silver': 'Silver',
   'gold': 'Gold',
   'platinum': 'Platinum'
 };
+
+function normalizeItemType(raw) {
+  if (!raw) return '';
+  return String(raw).trim().toLowerCase().replace(/\s+/g, ' ');
+}
 
 const salesUploadColumns = [
   { key: 'transacted_at', label: 'TRANSACTED AT' },
@@ -390,7 +397,7 @@ function parseItems(raw, rowNumber, sheetName) {
 
     const typeRaw = match[1].trim();
     const qty = parseInt(match[2], 10) || 0;
-    const normalizedKey = typeRaw.toLowerCase().replace(/\s+/g, ' ');
+    const normalizedKey = normalizeItemType(typeRaw);
     const canonical = TYPE_CANON_MAP[normalizedKey];
 
     if (!canonical) {
@@ -546,6 +553,7 @@ function renderCurrentTable(rows, mode) {
 function computeCardsFromRows(rows, itemsMap) {
   const nameSet = new Set();
   const totals = {
+    'BPGUARD': 0,
     'SGGUARD': 0,
     'Synbiotic+ MM': 0,
     'Silver': 0,
@@ -585,6 +593,10 @@ function renderSummaryCards(cards) {
     <div class="card">
       <p class="card-title">Unique Names</p>
       <p class="card-value">${uniqueNames.toLocaleString()}</p>
+    </div>
+    <div class="card">
+      <p class="card-title">BPGUARD</p>
+      <p class="card-value">${(totals['BPGUARD'] || 0).toLocaleString()}</p>
     </div>
     <div class="card">
       <p class="card-title">SGGUARD</p>
