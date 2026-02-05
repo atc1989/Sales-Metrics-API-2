@@ -1,3 +1,4 @@
 # Local-only secrets
 .env.local
 public/config.js
+docs
