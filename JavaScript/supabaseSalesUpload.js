@@ -222,7 +222,7 @@ async function loadWorkbook(file, sheetSelect) {
   workbookCache = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
 
   if (sheetSelect) {
-    sheetSelect.innerHTML = '<option value="__ALL__">All Sheets</option>';
+    sheetSelect.innerHTML = '<option value="__ALL__">All Sheets (Recommended)</option>';
     workbookCache.SheetNames.forEach((name) => {
       const opt = document.createElement('option');
       opt.value = name;
@@ -278,6 +278,7 @@ function parseRowByIndex(row, rowNumber, sheetName) {
   const parsedItems = parseItems(itemsRaw, rowNumber, sheetName);
 
   return {
+    sheet_name: sheetName,
     transacted_at: transactedAtIso,
     depot,
     ps_code: psCode,
@@ -475,6 +476,13 @@ function renderCurrentTable(rows, mode) {
     });
 
     const actionTd = document.createElement('td');
+    const badge = document.createElement('span');
+    const itemCount = mode === 'preview'
+      ? (row.items ? row.items.length : 0)
+      : (supabaseItemsByRowId.get(row.id) ? supabaseItemsByRowId.get(row.id).length : 0);
+    badge.className = 'item-badge';
+    badge.textContent = `${itemCount} items`;
+    actionTd.appendChild(badge);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'preview-items-btn';
@@ -584,9 +592,9 @@ function updateImportButtonState() {
 }
 
 function showParseWarnings(rows) {
-  const warningCount = rows.reduce((sum, row) => sum + (row.warnings ? row.warnings.length : 0), 0);
-  if (warningCount) {
-    showStatus(`Parsed ${rows.length} rows with ${warningCount} warnings.`, 'warn');
+  const warningRowCount = rows.reduce((sum, row) => (row.warnings && row.warnings.length ? sum + 1 : sum), 0);
+  if (warningRowCount) {
+    showStatus(`Parsed ${rows.length} rows. ${warningRowCount} rows have item parsing warnings. Review via Preview Items.`, 'warn');
   } else {
     showStatus(`Parsed ${rows.length} rows successfully.`);
   }
@@ -631,6 +639,7 @@ async function importParsedRows() {
 
       const payload = chunk.map((row) => ({
         upload_id: uploadId,
+        sheet_name: row.sheet_name || '',
         transacted_at: row.transacted_at,
         depot: row.depot,
         ps_code: row.ps_code,
@@ -714,7 +723,7 @@ async function loadSupabaseRowsByDateRange() {
 
   const query = supabase
     .from('sales_rows')
-    .select('id, transacted_at, depot, ps_code, account_type, buyer_raw, buyer_name, buyer_username, items_raw, amount')
+    .select('id, transacted_at, depot, ps_code, account_type, buyer_raw, buyer_name, buyer_username, items_raw, amount, sheet_name')
     .order('transacted_at', { ascending: false });
 
   if (startIso) query.gte('transacted_at', startIso);
@@ -826,7 +835,9 @@ function openItemsModal(row, items, warnings) {
   meta.innerHTML = `
     <p><strong>Transacted:</strong> ${dtText}</p>
     <p><strong>Depot:</strong> ${row.depot || ''}</p>
+    <p><strong>Sheet:</strong> ${row.sheet_name || ''}</p>
     <p><strong>Buyer Raw:</strong> ${row.buyer_raw || ''}</p>
+    <p><strong>Username:</strong> ${row.buyer_username || ''}</p>
     <p><strong>Items Raw:</strong> ${row.items_raw || ''}</p>
   `;
 
