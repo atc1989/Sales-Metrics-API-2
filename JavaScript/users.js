@@ -1,7 +1,7 @@
 // USERS CONFIG
 const USERS_API_USER = 'ggitteam';
 const USERS_ENDPOINT = '/api/users';
-
+// random comment
 const userColumns = [
   { key: 'user_name',    label: 'Username' },
   { key: 'name',         label: 'Name' },
