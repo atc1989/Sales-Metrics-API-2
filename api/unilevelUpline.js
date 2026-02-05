@@ -41,6 +41,8 @@ export default async function handler(req, res) {
       text.length
     );
 
+    // this is a random comment, ignore this
+
     res.setHeader('Content-Type', 'application/json');
     res.status(response.status).send(text);
   } catch (err) {
