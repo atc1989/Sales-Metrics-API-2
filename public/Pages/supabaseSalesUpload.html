@@ -77,7 +77,9 @@
   <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="itemsModalTitle">
     <div class="modal__header">
       <h3 id="itemsModalTitle">Items Preview</h3>
-      <button id="itemsModalClose" type="button" aria-label="Close">x</button>
+      <button id="itemsModalClose" type="button" class="modal__icon-btn" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
     <div class="modal__body">
       <div id="itemsModalMeta"></div>
@@ -85,7 +87,7 @@
       <div id="itemsModalList"></div>
     </div>
     <div class="modal__footer">
-      <button id="itemsModalOk" type="button">OK</button>
+      <button id="itemsModalOk" type="button" class="modal__primary-btn">Close</button>
     </div>
   </div>
 </div>
