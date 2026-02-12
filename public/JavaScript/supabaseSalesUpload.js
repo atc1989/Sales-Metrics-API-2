@@ -23,6 +23,27 @@ function normalizeItemType(raw) {
   return String(raw).trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+function getRowMapKey(rowId) {
+  return rowId == null ? '' : String(rowId);
+}
+
+function getFallbackItemsFromRaw(row) {
+  if (!row || !row.items_raw) return [];
+  const parsed = parseItems(row.items_raw, 0, row.sheet_name || 'Supabase');
+  return parsed.items || [];
+}
+
+function getItemsForRow(row, itemsMap) {
+  let items = [];
+  if (itemsMap && row && row.id != null) {
+    items = itemsMap.get(getRowMapKey(row.id)) || [];
+  } else if (row && Array.isArray(row.items)) {
+    items = row.items;
+  }
+  if (items && items.length) return items;
+  return getFallbackItemsFromRaw(row);
+}
+
 const salesUploadColumns = [
   { key: 'transacted_at', label: 'TRANSACTED AT' },
   { key: 'depot', label: 'DEPOT' },
@@ -202,7 +223,8 @@ function initSupabaseSalesUpload() {
         const row = supabaseVisibleRows.find((r) => String(r.id) === String(rowId));
         if (!row) return;
         const items = await ensureSupabaseItemsForRow(row.id);
-        openItemsModal(row, items, []);
+        const fallbackItems = (!items || !items.length) ? getFallbackItemsFromRaw(row) : items;
+        openItemsModal(row, fallbackItems, []);
       }
     });
   }
@@ -525,9 +547,7 @@ function renderCurrentTable(rows, mode) {
 
     const actionTd = document.createElement('td');
     const badge = document.createElement('span');
-    const itemCount = mode === 'preview'
-      ? (row.items ? row.items.length : 0)
-      : (supabaseItemsByRowId.get(row.id) ? supabaseItemsByRowId.get(row.id).length : 0);
+    const itemCount = getItemsForRow(row, mode === 'preview' ? null : supabaseItemsByRowId).length;
     badge.className = 'item-badge';
     badge.textContent = `${itemCount} items`;
     actionTd.appendChild(badge);
@@ -565,12 +585,10 @@ function computeCardsFromRows(rows, itemsMap) {
     const nameKey = (row.buyer_name || '').trim().toLowerCase();
     if (nameKey) nameSet.add(nameKey);
 
-    const items = itemsMap && row.id
-      ? (itemsMap.get(row.id) || [])
-      : (row.items || []);
+    const items = getItemsForRow(row, itemsMap);
 
     items.forEach((item) => {
-      const label = item.item_type;
+      const label = TYPE_CANON_MAP[normalizeItemType(item.item_type)] || item.item_type;
       if (totals[label] != null) {
         totals[label] += Number(item.qty || 0);
       }
@@ -825,10 +843,11 @@ async function fetchItemsForRows(rowIds) {
     }
 
     (data || []).forEach((item) => {
-      if (!map.has(item.row_id)) {
-        map.set(item.row_id, []);
+      const mapKey = getRowMapKey(item.row_id);
+      if (!map.has(mapKey)) {
+        map.set(mapKey, []);
       }
-      map.get(item.row_id).push({
+      map.get(mapKey).push({
         item_type: item.item_type,
         qty: item.qty
       });
@@ -839,8 +858,9 @@ async function fetchItemsForRows(rowIds) {
 }
 
 async function ensureSupabaseItemsForRow(rowId) {
-  if (supabaseItemsByRowId.has(rowId)) {
-    return supabaseItemsByRowId.get(rowId);
+  const mapKey = getRowMapKey(rowId);
+  if (supabaseItemsByRowId.has(mapKey)) {
+    return supabaseItemsByRowId.get(mapKey);
   }
 
   const supabase = window.getSupabase();
@@ -859,7 +879,7 @@ async function ensureSupabaseItemsForRow(rowId) {
     qty: item.qty
   }));
 
-  supabaseItemsByRowId.set(rowId, items);
+  supabaseItemsByRowId.set(mapKey, items);
   return items;
 }
 
