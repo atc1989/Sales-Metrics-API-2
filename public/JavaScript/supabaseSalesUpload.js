@@ -211,10 +211,11 @@ function initSupabaseSalesUpload() {
   if (tableWrapper) {
     tableWrapper.addEventListener('click', async (event) => {
       const target = event.target;
-      if (!(target instanceof HTMLElement)) return;
-      if (!target.classList.contains('preview-items-btn')) return;
-      const rowIndex = target.dataset.index;
-      const rowId = target.dataset.rowId;
+      if (!(target instanceof Element)) return;
+      const button = target.closest('.preview-items-btn');
+      if (!button) return;
+      const rowIndex = button.dataset.index;
+      const rowId = button.dataset.rowId;
       if (currentMode === 'preview' && rowIndex != null) {
         const row = parsedVisibleRows[Number(rowIndex)];
         if (row) openItemsModal(row, row.items, row.warnings);
@@ -831,7 +832,8 @@ async function fetchItemsForRows(rowIds) {
   if (!rowIds.length) return map;
 
   const supabase = window.getSupabase();
-  const chunkSize = 1000;
+  // Keep IN-filter query strings below URL limits (UUID lists get very long).
+  const chunkSize = 120;
 
   for (let i = 0; i < rowIds.length; i += chunkSize) {
     const chunk = rowIds.slice(i, i + chunkSize);
