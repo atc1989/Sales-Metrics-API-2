@@ -296,6 +296,7 @@ button:active {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .table-filter-row {
@@ -550,6 +551,27 @@ tbody tr:hover {
   font-size: 0.75rem;
   font-weight: 600;
   margin-right: 8px;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.preview-items-btn {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-items-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
 }
 
 .warn-pill {

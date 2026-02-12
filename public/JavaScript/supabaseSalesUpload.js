@@ -546,6 +546,7 @@ function renderCurrentTable(rows, mode) {
     });
 
     const actionTd = document.createElement('td');
+    actionTd.className = 'actions-cell';
     const badge = document.createElement('span');
     const itemCount = getItemsForRow(row, mode === 'preview' ? null : supabaseItemsByRowId).length;
     badge.className = 'item-badge';
@@ -554,7 +555,9 @@ function renderCurrentTable(rows, mode) {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'preview-items-btn';
-    button.textContent = 'Preview Items';
+    button.setAttribute('aria-label', 'Preview Items');
+    button.title = 'Preview Items';
+    button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke-width="1.8"/></svg>';
     if (mode === 'preview') {
       button.dataset.index = String(index);
     } else {
