@@ -416,9 +416,9 @@ async function syncNetworkActivityToSupabase() {
   showSyncStatus('Preparing sync...');
   setSyncProgress({
     visible: true,
-    label: 'Fetching full network activity...',
+    label: 'Loading user list...',
     percent: null,
-    detail: 'This may take a moment.'
+    detail: 'Fetching usernames from source database.'
   });
 
   let batchId = null;
@@ -429,39 +429,23 @@ async function syncNetworkActivityToSupabase() {
 
     const supabase = window.getSupabase();
 
-    const rootRows = await loadNetworkActivityData({ username: '' });
-    let sourceScope = 'root';
-    let syncRows = dedupeSyncRows(normalizeRowsForSync(rootRows));
+    const usernames = await fetchAllSourceUsernames();
+    const sourceScope = usernames.length ? 'users_full' : 'users_full_empty';
 
-    if (!syncRows.length) {
-      showSyncStatus('Root fetch is empty. Falling back to per-user sync...', 'warn');
-      setSyncProgress({
-        visible: true,
-        label: 'Loading user list...',
-        percent: null,
-        detail: 'Fetching usernames from source database.'
-      });
-
-      const usernames = await fetchAllSourceUsernames();
-      if (usernames.length) {
-        sourceScope = 'users_fallback';
+    const perUserResult = await fetchNetworkActivityFromAllUsers(
+      usernames,
+      ({ processedUsers, totalUsers, matchedUsers, matchedRows }) => {
+        const percent = totalUsers ? (processedUsers / totalUsers) * 100 : 100;
+        setSyncProgress({
+          visible: true,
+          label: 'Fetching activity per user...',
+          percent,
+          detail: `${processedUsers.toLocaleString()} / ${totalUsers.toLocaleString()} users checked | ${matchedUsers.toLocaleString()} users with activity | ${matchedRows.toLocaleString()} rows found`
+        });
       }
+    );
 
-      const fallbackResult = await fetchNetworkActivityFromAllUsers(
-        usernames,
-        ({ processedUsers, totalUsers, matchedUsers, matchedRows }) => {
-          const percent = totalUsers ? (processedUsers / totalUsers) * 100 : 100;
-          setSyncProgress({
-            visible: true,
-            label: 'Fetching activity per user...',
-            percent,
-            detail: `${processedUsers.toLocaleString()} / ${totalUsers.toLocaleString()} users checked | ${matchedUsers.toLocaleString()} users with activity | ${matchedRows.toLocaleString()} rows found`
-          });
-        }
-      );
-
-      syncRows = dedupeSyncRows(normalizeRowsForSync(fallbackResult.rows));
-    }
+    const syncRows = dedupeSyncRows(normalizeRowsForSync(perUserResult.rows));
 
     const uniqueUsers = new Set(
       syncRows
