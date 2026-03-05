@@ -183,36 +183,6 @@ function dedupeSyncRows(rows) {
   return deduped;
 }
 
-async function fetchLatestCompletedBatchRows(supabase) {
-  const { data: latestBatch, error: batchError } = await supabase
-    .from('network_activity_sync_batches')
-    .select('id')
-    .eq('status', 'completed')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (batchError) throw batchError;
-  if (!latestBatch?.id) {
-    return {
-      batchId: null,
-      rows: []
-    };
-  }
-
-  const { data: rows, error: rowsError } = await supabase
-    .from('network_activity_sync_rows')
-    .select('source_username, requestdate, amount, remarks, raw_row')
-    .eq('sync_batch_id', latestBatch.id);
-
-  if (rowsError) throw rowsError;
-
-  return {
-    batchId: latestBatch.id,
-    rows: Array.isArray(rows) ? rows : []
-  };
-}
-
 async function fetchAllSourceUsernames({ df, dt } = {}) {
   const result = await apiGet('/api/users', {
     user: NETWORK_ACTIVITY_API_USER,
@@ -484,8 +454,6 @@ async function syncNetworkActivityToSupabase() {
     }
 
     const supabase = window.getSupabase();
-    const previousSnapshot = await fetchLatestCompletedBatchRows(supabase);
-    const previousRows = dedupeSyncRows(normalizeRowsForSync(previousSnapshot.rows));
 
     const syncDf = NETWORK_SYNC_USERS_START_DF;
     const syncDt = getTodayApiDate();
@@ -511,8 +479,7 @@ async function syncNetworkActivityToSupabase() {
       }
     );
 
-    const currentRows = dedupeSyncRows(normalizeRowsForSync(perUserResult.rows));
-    const syncRows = dedupeSyncRows([...previousRows, ...currentRows]);
+    const syncRows = dedupeSyncRows(normalizeRowsForSync(perUserResult.rows));
 
     const uniqueUsers = new Set(
       syncRows
@@ -527,7 +494,7 @@ async function syncNetworkActivityToSupabase() {
       visible: true,
       label: 'Creating sync batch...',
       percent: 0,
-      detail: `${previousRows.length.toLocaleString()} previous + ${currentRows.length.toLocaleString()} current = ${totalRows.toLocaleString()} rows`
+      detail: `${totalRows.toLocaleString()} rows ready to store`
     });
 
     batchId = await createNetworkSyncBatch(supabase, totalRows, totalUsers, sourceScope);
