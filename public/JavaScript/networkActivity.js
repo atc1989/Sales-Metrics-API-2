@@ -1,6 +1,7 @@
 // NETWORK ACTIVITY CONFIG
 const NETWORK_ACTIVITY_API_USER = 'ggitteam';
 const NETWORK_ACTIVITY_ENDPOINT = '/api/networkActivity';
+const NETWORK_SYNC_USER_CONCURRENCY = 8;
 
 const networkActivityColumns = [
   { key: 'requestdate', label: 'REQUEST DATE' },
@@ -14,6 +15,14 @@ let networkActivitySyncInProgress = false;
 
 function getNetworkActivityApiKey() {
   return generateApiKey();
+}
+
+function extractRowsFromApiResult(result) {
+  if (Array.isArray(result?.data)) return result.data;
+  if (Array.isArray(result?.rows)) return result.rows;
+  if (Array.isArray(result?.result)) return result.result;
+  if (Array.isArray(result)) return result;
+  return [];
 }
 
 function getSyncStatusElements() {
@@ -72,6 +81,7 @@ function setSyncButtonBusy(isBusy) {
 function inferSourceUsername(row) {
   if (!row || typeof row !== 'object') return '';
   const candidates = [
+    row.source_username,
     row.user_name,
     row.username,
     row.buyer_username,
@@ -160,6 +170,86 @@ function dedupeSyncRows(rows) {
   return deduped;
 }
 
+async function fetchAllSourceUsernames() {
+  const result = await apiGet('/api/users', {
+    user: NETWORK_ACTIVITY_API_USER,
+    apikey: getNetworkActivityApiKey()
+  });
+
+  const rows = extractRowsFromApiResult(result);
+  const usernames = rows
+    .map((row) => row?.user_name || row?.username || row?.user || row?.name)
+    .map((value) => (value == null ? '' : String(value).trim()))
+    .filter(Boolean);
+
+  return Array.from(new Set(usernames));
+}
+
+async function fetchNetworkActivityRowsForUsername(username) {
+  if (!username) return [];
+
+  const result = await apiGet(NETWORK_ACTIVITY_ENDPOINT, {
+    user: NETWORK_ACTIVITY_API_USER,
+    apikey: getNetworkActivityApiKey(),
+    username
+  });
+
+  const rows = extractRowsFromApiResult(result);
+  return rows.map((row) => ({
+    ...(row && typeof row === 'object' ? row : {}),
+    source_username: username
+  }));
+}
+
+async function fetchNetworkActivityFromAllUsers(usernames, onProgress) {
+  const queue = Array.isArray(usernames) ? usernames.slice() : [];
+  const totalUsers = queue.length;
+  const allRows = [];
+
+  let processedUsers = 0;
+  let matchedUsers = 0;
+  let totalMatchedRows = 0;
+
+  const worker = async () => {
+    while (queue.length) {
+      const username = queue.shift();
+      if (!username) continue;
+
+      try {
+        const rows = await fetchNetworkActivityRowsForUsername(username);
+        if (rows.length) {
+          matchedUsers += 1;
+          totalMatchedRows += rows.length;
+          allRows.push(...rows);
+        }
+      } catch (error) {
+        console.warn('Failed network activity fetch for user:', username, error);
+      } finally {
+        processedUsers += 1;
+        if (typeof onProgress === 'function') {
+          onProgress({
+            processedUsers,
+            totalUsers,
+            matchedUsers,
+            matchedRows: totalMatchedRows
+          });
+        }
+      }
+    }
+  };
+
+  const workerCount = Math.max(1, Math.min(NETWORK_SYNC_USER_CONCURRENCY, totalUsers || 1));
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+
+  return {
+    rows: allRows,
+    processedUsers,
+    totalUsers,
+    matchedUsers,
+    matchedRows: totalMatchedRows
+  };
+}
+
 // SUMMARY
 function renderNetworkActivitySummary(rows, summaryEl) {
   if (!summaryEl) return;
@@ -225,19 +315,12 @@ async function loadNetworkActivityData({ username }) {
       apikey: getNetworkActivityApiKey()
     };
 
-    // Only send username if specified; backend turns it into accounthash.
     if (username) {
       params.username = username;
     }
 
     const result = await apiGet(NETWORK_ACTIVITY_ENDPOINT, params);
-
-    // Shape handling: { data: [...] } or plain [...]
-    const rows = Array.isArray(result?.data)
-      ? result.data
-      : Array.isArray(result)
-        ? result
-        : [];
+    const rows = extractRowsFromApiResult(result);
 
     if (!rows.length) {
       console.warn('No network activity data found for username:', username || '(root)');
@@ -259,11 +342,11 @@ async function loadNetworkActivityData({ username }) {
   }
 }
 
-async function createNetworkSyncBatch(supabase, totalRows, totalUsers) {
+async function createNetworkSyncBatch(supabase, totalRows, totalUsers, sourceScope = 'root') {
   const { data, error } = await supabase
     .from('network_activity_sync_batches')
     .insert({
-      source_scope: 'root',
+      source_scope: sourceScope,
       status: 'running',
       total_rows: totalRows,
       total_users: totalUsers,
@@ -313,7 +396,7 @@ async function insertNetworkSyncRowsInChunks(supabase, batchId, syncRows, onProg
     });
 
     if (typeof onProgress === 'function') {
-      onProgress({
+      await onProgress({
         insertedRows,
         coveredUsers: coveredUsers.size
       });
@@ -347,8 +430,39 @@ async function syncNetworkActivityToSupabase() {
     const supabase = window.getSupabase();
 
     const rootRows = await loadNetworkActivityData({ username: '' });
-    const normalizedRows = normalizeRowsForSync(rootRows);
-    const syncRows = dedupeSyncRows(normalizedRows);
+    let sourceScope = 'root';
+    let syncRows = dedupeSyncRows(normalizeRowsForSync(rootRows));
+
+    if (!syncRows.length) {
+      showSyncStatus('Root fetch is empty. Falling back to per-user sync...', 'warn');
+      setSyncProgress({
+        visible: true,
+        label: 'Loading user list...',
+        percent: null,
+        detail: 'Fetching usernames from source database.'
+      });
+
+      const usernames = await fetchAllSourceUsernames();
+      if (usernames.length) {
+        sourceScope = 'users_fallback';
+      }
+
+      const fallbackResult = await fetchNetworkActivityFromAllUsers(
+        usernames,
+        ({ processedUsers, totalUsers, matchedUsers, matchedRows }) => {
+          const percent = totalUsers ? (processedUsers / totalUsers) * 100 : 100;
+          setSyncProgress({
+            visible: true,
+            label: 'Fetching activity per user...',
+            percent,
+            detail: `${processedUsers.toLocaleString()} / ${totalUsers.toLocaleString()} users checked | ${matchedUsers.toLocaleString()} users with activity | ${matchedRows.toLocaleString()} rows found`
+          });
+        }
+      );
+
+      syncRows = dedupeSyncRows(normalizeRowsForSync(fallbackResult.rows));
+    }
+
     const uniqueUsers = new Set(
       syncRows
         .map((row) => row.source_username)
@@ -362,10 +476,10 @@ async function syncNetworkActivityToSupabase() {
       visible: true,
       label: 'Creating sync batch...',
       percent: 0,
-      detail: `0 / ${totalRows.toLocaleString()} rows • 0 / ${totalUsers.toLocaleString()} users`
+      detail: `0 / ${totalRows.toLocaleString()} rows | 0 / ${totalUsers.toLocaleString()} users`
     });
 
-    batchId = await createNetworkSyncBatch(supabase, totalRows, totalUsers);
+    batchId = await createNetworkSyncBatch(supabase, totalRows, totalUsers, sourceScope);
 
     if (!totalRows) {
       await updateNetworkSyncBatch(supabase, batchId, {
@@ -393,7 +507,7 @@ async function syncNetworkActivityToSupabase() {
           visible: true,
           label: 'Syncing to Supabase...',
           percent,
-          detail: `${insertedRows.toLocaleString()} / ${totalRows.toLocaleString()} rows • ${coveredUsers.toLocaleString()} / ${totalUsers.toLocaleString()} users`
+          detail: `${insertedRows.toLocaleString()} / ${totalRows.toLocaleString()} rows | ${coveredUsers.toLocaleString()} / ${totalUsers.toLocaleString()} users`
         });
 
         await updateNetworkSyncBatch(supabase, batchId, {
@@ -411,7 +525,7 @@ async function syncNetworkActivityToSupabase() {
       visible: true,
       label: 'Sync complete',
       percent: 100,
-      detail: `${result.insertedRows.toLocaleString()} rows stored • ${result.coveredUsers.toLocaleString()} users with activity`
+      detail: `${result.insertedRows.toLocaleString()} rows stored | ${result.coveredUsers.toLocaleString()} users with activity`
     });
     showSyncStatus('Network activity sync completed successfully.');
   } catch (error) {
