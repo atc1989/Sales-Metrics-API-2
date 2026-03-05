@@ -1,7 +1,9 @@
 // NETWORK ACTIVITY CONFIG
 const NETWORK_ACTIVITY_API_USER = 'ggitteam';
 const NETWORK_ACTIVITY_ENDPOINT = '/api/networkActivity';
-const NETWORK_SYNC_USER_CONCURRENCY = 8;
+const NETWORK_SYNC_USER_CONCURRENCY = 4;
+const NETWORK_SYNC_USERS_START_DF = '20250201';
+const NETWORK_SYNC_USER_FETCH_RETRIES = 2;
 
 const networkActivityColumns = [
   { key: 'requestdate', label: 'REQUEST DATE' },
@@ -15,6 +17,18 @@ let networkActivitySyncInProgress = false;
 
 function getNetworkActivityApiKey() {
   return generateApiKey();
+}
+
+function getTodayApiDate() {
+  const now = new Date();
+  const year = String(now.getFullYear());
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function extractRowsFromApiResult(result) {
@@ -199,10 +213,12 @@ async function fetchLatestCompletedBatchRows(supabase) {
   };
 }
 
-async function fetchAllSourceUsernames() {
+async function fetchAllSourceUsernames({ df, dt } = {}) {
   const result = await apiGet('/api/users', {
     user: NETWORK_ACTIVITY_API_USER,
-    apikey: getNetworkActivityApiKey()
+    apikey: getNetworkActivityApiKey(),
+    df,
+    dt
   });
 
   const rows = extractRowsFromApiResult(result);
@@ -217,17 +233,28 @@ async function fetchAllSourceUsernames() {
 async function fetchNetworkActivityRowsForUsername(username) {
   if (!username) return [];
 
-  const result = await apiGet(NETWORK_ACTIVITY_ENDPOINT, {
-    user: NETWORK_ACTIVITY_API_USER,
-    apikey: getNetworkActivityApiKey(),
-    username
-  });
+  let lastError;
+  for (let attempt = 0; attempt <= NETWORK_SYNC_USER_FETCH_RETRIES; attempt += 1) {
+    try {
+      const result = await apiGet(NETWORK_ACTIVITY_ENDPOINT, {
+        user: NETWORK_ACTIVITY_API_USER,
+        apikey: getNetworkActivityApiKey(),
+        username
+      });
 
-  const rows = extractRowsFromApiResult(result);
-  return rows.map((row) => ({
-    ...(row && typeof row === 'object' ? row : {}),
-    source_username: username
-  }));
+      const rows = extractRowsFromApiResult(result);
+      return rows.map((row) => ({
+        ...(row && typeof row === 'object' ? row : {}),
+        source_username: username
+      }));
+    } catch (error) {
+      lastError = error;
+      if (attempt < NETWORK_SYNC_USER_FETCH_RETRIES) {
+        await delay(200 * (attempt + 1));
+      }
+    }
+  }
+  throw lastError || new Error('Failed to fetch network activity for user.');
 }
 
 async function fetchNetworkActivityFromAllUsers(usernames, onProgress) {
@@ -460,7 +487,15 @@ async function syncNetworkActivityToSupabase() {
     const previousSnapshot = await fetchLatestCompletedBatchRows(supabase);
     const previousRows = dedupeSyncRows(normalizeRowsForSync(previousSnapshot.rows));
 
-    const usernames = await fetchAllSourceUsernames();
+    const syncDf = NETWORK_SYNC_USERS_START_DF;
+    const syncDt = getTodayApiDate();
+    setSyncProgress({
+      visible: true,
+      label: 'Loading user list...',
+      percent: null,
+      detail: `Fetching usernames from ${syncDf} to ${syncDt}.`
+    });
+    const usernames = await fetchAllSourceUsernames({ df: syncDf, dt: syncDt });
     const sourceScope = usernames.length ? 'users_full' : 'users_full_empty';
 
     const perUserResult = await fetchNetworkActivityFromAllUsers(
