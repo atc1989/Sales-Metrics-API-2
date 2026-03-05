@@ -469,6 +469,47 @@ button:active {
   cursor: pointer;
 }
 
+.sync-progress {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.sync-progress__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.sync-progress__track {
+  margin-top: 8px;
+  height: 10px;
+  width: 100%;
+  border-radius: 999px;
+  background: #eef2f7;
+  overflow: hidden;
+}
+
+.sync-progress__fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4f46e5, #2563eb);
+  transition: width 0.2s ease;
+}
+
+.sync-progress__detail {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 /* Export pill buttons */
 .export-btn {
   padding: 8px 14px;
