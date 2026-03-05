@@ -134,8 +134,7 @@ function buildSyncRowHash(normalizedRow) {
       source_username: normalizedRow.source_username || '',
       requestdate: normalizedRow.requestdate || '',
       amount: normalizedRow.amount,
-      remarks: normalizedRow.remarks || '',
-      raw_row: normalizedRow.raw_row
+      remarks: normalizedRow.remarks || ''
     })
   );
 }
@@ -460,7 +459,7 @@ async function syncNetworkActivityToSupabase() {
       visible: true,
       label: 'Creating sync batch...',
       percent: 0,
-      detail: `0 / ${totalRows.toLocaleString()} rows | 0 / ${totalUsers.toLocaleString()} users`
+      detail: `${totalRows.toLocaleString()} rows ready to store`
     });
 
     batchId = await createNetworkSyncBatch(supabase, totalRows, totalUsers, sourceScope);
